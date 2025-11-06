@@ -7,10 +7,10 @@ const BottomNav = () => {
   const location = useLocation();
 
   const navItems = [
-    { icon: MessageCircle, label: "Chat", path: "/" },
-    { icon: Video, label: "Video", path: "/video" },
-    { icon: CreditCard, label: "Premium", path: "/subscription" },
-    { icon: History, label: "History", path: "/history" },
+    { icon: MessageCircle, label: "Home", path: "/" },
+    { icon: Video, label: "Generate", path: "/video" },
+    { icon: History, label: "Tasks", path: "/tasks" },
+    { icon: CreditCard, label: "Credits", path: "/subscription" },
     { icon: Settings, label: "Settings", path: "/settings" },
   ];
 

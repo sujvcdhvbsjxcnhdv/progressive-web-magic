@@ -22,6 +22,29 @@ const Settings = () => {
           <p className="text-muted-foreground">Manage your preferences</p>
         </div>
 
+        <Card className="mb-4">
+          <CardContent className="p-6">
+            <h2 className="text-lg font-semibold mb-4">Credits Balance</h2>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-3xl font-bold text-primary">127</div>
+                <p className="text-sm text-muted-foreground">Available Credits</p>
+              </div>
+              <Button onClick={() => window.location.href = "/subscription"}>
+                Get More Credits
+              </Button>
+            </div>
+            <div className="mt-4 pt-4 border-t">
+              <button 
+                className="text-sm text-primary hover:underline"
+                onClick={() => toast.info("Credit usage history coming soon")}
+              >
+                View Usage History →
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="space-y-4">
           <Card>
             <CardHeader>

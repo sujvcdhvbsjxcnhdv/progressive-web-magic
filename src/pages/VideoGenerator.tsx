@@ -35,7 +35,10 @@ const templates: Template[] = [
 ];
 
 const VideoGenerator = () => {
+  const [mode, setMode] = useState<"select" | "image" | "text">("select");
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [textPrompt, setTextPrompt] = useState("");
   const [generatedVideo, setGeneratedVideo] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -64,17 +67,45 @@ const VideoGenerator = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-6">
       <div className="container mx-auto px-4">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">AI Video Generator</h1>
-          <p className="text-muted-foreground">Transform images into dynamic videos</p>
+          <h1 className="text-3xl font-bold mb-2">Video Generator</h1>
+          <p className="text-muted-foreground">
+            {mode === "select" && "Choose a generation mode"}
+            {mode === "image" && "Upload image to generate video"}
+            {mode === "text" && "Describe your video"}
+          </p>
         </div>
 
-        {!generatedVideo ? (
+        {mode === "select" ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => setMode("image")}>
+              <CardContent className="p-8 text-center">
+                <Upload className="w-16 h-16 mx-auto mb-4 text-primary" />
+                <h2 className="text-2xl font-bold mb-2">📸 Image to Video</h2>
+                <p className="text-muted-foreground">Upload an image and transform it into a dynamic video</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => setMode("text")}>
+              <CardContent className="p-8 text-center">
+                <Wand2 className="w-16 h-16 mx-auto mb-4 text-primary" />
+                <h2 className="text-2xl font-bold mb-2">✍️ Text to Video</h2>
+                <p className="text-muted-foreground">Describe your vision and AI will create the video</p>
+              </CardContent>
+            </Card>
+          </div>
+        ) : !generatedVideo ? (
           <>
             <div className="mb-8">
               <h2 className="text-xl font-semibold mb-4">Choose a Template</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {templates.map((template) => (
-                  <Card key={template.id} className="cursor-pointer hover:shadow-lg transition-all">
+                  <Card 
+                    key={template.id} 
+                    className={`cursor-pointer hover:shadow-lg transition-all ${
+                      selectedTemplate?.id === template.id ? 'ring-2 ring-primary' : ''
+                    }`}
+                    onClick={() => setSelectedTemplate(template)}
+                  >
                     <CardContent className="p-4">
                       <img
                         src={template.thumbnail}
@@ -82,16 +113,13 @@ const VideoGenerator = () => {
                         className="w-full aspect-video object-cover rounded-lg mb-3"
                       />
                       <h3 className="font-semibold mb-2">{template.name}</h3>
-                      <div className="flex flex-wrap gap-1 mb-3">
+                      <div className="flex flex-wrap gap-1">
                         {template.tags.map((tag) => (
                           <Badge key={tag} variant="secondary" className="text-xs">
                             {tag}
                           </Badge>
                         ))}
                       </div>
-                      <Button variant="outline" className="w-full" size="sm">
-                        Use Template
-                      </Button>
                     </CardContent>
                   </Card>
                 ))}
@@ -100,7 +128,21 @@ const VideoGenerator = () => {
 
             <Card>
               <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Upload Image</h2>
+                <h2 className="text-xl font-semibold mb-4">
+                  {mode === "image" ? "Upload Image" : "Describe Your Video"}
+                </h2>
+                
+                {mode === "text" && (
+                  <div className="mb-4">
+                    <textarea
+                      className="w-full min-h-[120px] p-4 border border-input rounded-lg bg-background"
+                      placeholder="Describe the content you want to create..."
+                      value={textPrompt}
+                      onChange={(e) => setTextPrompt(e.target.value)}
+                    />
+                  </div>
+                )}
+                
                 <div className="border-2 border-dashed border-primary/20 rounded-lg p-8 text-center mb-4">
                   <input
                     type="file"
@@ -138,14 +180,26 @@ const VideoGenerator = () => {
                     </div>
                   </div>
 
-                  <Button
-                    onClick={handleGenerate}
-                    className="w-full"
-                    disabled={!selectedFile || isGenerating}
-                  >
-                    <Wand2 className="w-4 h-4 mr-2" />
-                    {isGenerating ? "Generating..." : "Generate Video"}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setMode("select");
+                        setSelectedFile(null);
+                        setTextPrompt("");
+                      }}
+                    >
+                      Back
+                    </Button>
+                    <Button
+                      onClick={handleGenerate}
+                      className="flex-1"
+                      disabled={(mode === "image" && !selectedFile) || (mode === "text" && !textPrompt.trim()) || isGenerating}
+                    >
+                      <Wand2 className="w-4 h-4 mr-2" />
+                      {isGenerating ? "Generating..." : "Generate Video (10 Credits)"}
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>

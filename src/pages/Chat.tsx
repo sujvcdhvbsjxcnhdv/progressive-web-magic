@@ -20,7 +20,7 @@ const Chat = () => {
     {
       id: "1",
       sender: "ai",
-      content: "Hi there! I'm so happy to chat with you. How are you today?",
+      content: "Hi! I'm your AI assistant. Describe the video you want to create, and I'll help you generate it! 🎬",
       timestamp: new Date(),
     },
   ]);
@@ -40,8 +40,8 @@ const Chat = () => {
     if (!input.trim()) return;
 
     if (messageCount >= 3) {
-      toast.error("Free message limit reached. Please subscribe to continue chatting.");
-      navigate("/subscription");
+      toast.error("Free message limit reached! Subscribe to continue creating videos.");
+      setTimeout(() => navigate("/subscription"), 1500);
       return;
     }
 
@@ -57,10 +57,16 @@ const Chat = () => {
     setMessageCount((prev) => prev + 1);
 
     setTimeout(() => {
+      const responses = [
+        "Great idea! Let me help you create that video. Would you like to upload an image or describe it in detail?",
+        "I can generate that for you! Do you have a reference image, or should I create from your description?",
+        "Perfect! I'll need a bit more detail. What style would you like - realistic, dreamy, or artistic?",
+        "Sounds exciting! Tell me more about the scene and mood you want to capture.",
+      ];
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         sender: "ai",
-        content: "That's interesting! Tell me more...",
+        content: responses[Math.floor(Math.random() * responses.length)],
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, aiMessage]);
@@ -68,9 +74,9 @@ const Chat = () => {
   };
 
   const quickActions = [
-    "What are you doing?",
-    "Send me a photo",
-    "Tell me about yourself",
+    "Generate a beach video",
+    "Create romantic scene",
+    "Show video templates",
   ];
 
   return (

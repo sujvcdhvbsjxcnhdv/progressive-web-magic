@@ -7,7 +7,7 @@ import CharacterGallery from "./pages/CharacterGallery";
 import Chat from "./pages/Chat";
 import VideoGenerator from "./pages/VideoGenerator";
 import Subscription from "./pages/Subscription";
-import ChatHistory from "./pages/ChatHistory";
+import TaskCenter from "./pages/TaskCenter";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import BottomNav from "./components/BottomNav";
@@ -26,7 +26,7 @@ const App = () => (
             <Route path="/chat/:characterId" element={<Chat />} />
             <Route path="/video" element={<VideoGenerator />} />
             <Route path="/subscription" element={<Subscription />} />
-            <Route path="/history" element={<ChatHistory />} />
+            <Route path="/tasks" element={<TaskCenter />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
