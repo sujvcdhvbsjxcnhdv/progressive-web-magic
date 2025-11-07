@@ -2,46 +2,72 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send, Image as ImageIcon, Smile } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 import { toast } from "sonner";
+
+const characters = {
+  "1": {
+    name: "Luna",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
+    cover: "https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&h=800&fit=crop",
+  },
+  "2": {
+    name: "Max",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+    cover: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&h=800&fit=crop",
+  },
+  "3": {
+    name: "Aria",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
+    cover: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop",
+  },
+  "4": {
+    name: "Echo",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+    cover: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1200&h=800&fit=crop",
+  },
+};
 
 interface Message {
   id: string;
   sender: "user" | "ai";
   content: string;
   timestamp: Date;
-  imageUrl?: string;
 }
 
 const Chat = () => {
   const { characterId } = useParams();
   const navigate = useNavigate();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
       sender: "ai",
-      content: "Hi! I'm your AI assistant. Describe the video you want to create, and I'll help you generate it! 🎬",
+      content: "Hi! I'm here to help you create amazing videos. What would you like to make today?",
       timestamp: new Date(),
     },
   ]);
   const [input, setInput] = useState("");
-  const [messageCount, setMessageCount] = useState(0);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const freeMessageLimit = 3;
+  const userMessageCount = messages.filter(m => m.sender === "user").length;
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const character = characters[characterId as keyof typeof characters];
+
+  if (!character) {
+    navigate("/");
+    return null;
+  }
 
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = async () => {
+  const handleSend = () => {
     if (!input.trim()) return;
 
-    if (messageCount >= 3) {
-      toast.error("Free message limit reached! Subscribe to continue creating videos.");
-      setTimeout(() => navigate("/subscription"), 1500);
+    if (userMessageCount >= freeMessageLimit) {
+      navigate("/pricing");
+      toast.info("Upgrade to continue chatting");
       return;
     }
 
@@ -52,52 +78,40 @@ const Chat = () => {
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages([...messages, userMessage]);
     setInput("");
-    setMessageCount((prev) => prev + 1);
 
     setTimeout(() => {
-      const responses = [
-        "Great idea! Let me help you create that video. Would you like to upload an image or describe it in detail?",
-        "I can generate that for you! Do you have a reference image, or should I create from your description?",
-        "Perfect! I'll need a bit more detail. What style would you like - realistic, dreamy, or artistic?",
-        "Sounds exciting! Tell me more about the scene and mood you want to capture.",
-      ];
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         sender: "ai",
-        content: responses[Math.floor(Math.random() * responses.length)],
+        content: "That sounds interesting! Let me help you with that. Would you like to create a video about this?",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, aiMessage]);
     }, 1000);
   };
 
-  const quickActions = [
-    "Generate a beach video",
-    "Create romantic scene",
-    "Show video templates",
-  ];
-
   return (
-    <div className="flex flex-col h-screen bg-background">
-      <div className="bg-primary/10 backdrop-blur-sm border-b px-4 py-3 flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate("/")}
-        >
+    <div
+      className="min-h-screen flex flex-col"
+      style={{
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${character?.cover})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="p-4 bg-background/90 backdrop-blur-sm border-b flex items-center gap-3">
+        <Button variant="ghost" size="icon" onClick={() => navigate("/chat")}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <div className="flex items-center gap-3 flex-1">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600" />
-          <div>
-            <h2 className="font-semibold">Sophie</h2>
-            <p className="text-xs text-muted-foreground">Online</p>
-          </div>
-        </div>
-        <div className="text-xs text-muted-foreground">
-          {messageCount}/3 free messages
+        <div className="flex items-center gap-3">
+          <img
+            src={character?.avatar}
+            alt={character?.name}
+            className="w-10 h-10 rounded-full object-cover border-2 border-primary"
+          />
+          <h1 className="text-lg font-bold">{character?.name}</h1>
         </div>
       </div>
 
@@ -108,57 +122,48 @@ const Chat = () => {
             className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+              className={`max-w-[80%] rounded-2xl p-3 ${
                 message.sender === "user"
                   ? "bg-primary text-primary-foreground"
-                  : "bg-muted"
+                  : "bg-card/90 backdrop-blur-sm"
               }`}
             >
-              {message.imageUrl && (
-                <img
-                  src={message.imageUrl}
-                  alt="Shared"
-                  className="rounded-lg mb-2 max-w-full"
-                />
-              )}
               <p className="text-sm">{message.content}</p>
+              <p className="text-xs opacity-60 mt-1">
+                {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </p>
             </div>
           </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="border-t p-4 space-y-3">
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {quickActions.map((action) => (
-            <Button
-              key={action}
-              variant="outline"
-              size="sm"
-              className="whitespace-nowrap"
-              onClick={() => setInput(action)}
-            >
-              {action}
+      <div className="p-4 bg-background/90 backdrop-blur-sm border-t">
+        {userMessageCount >= freeMessageLimit && (
+          <div className="mb-3 p-3 bg-primary/10 border border-primary rounded-lg text-center">
+            <p className="text-sm text-primary font-medium">
+              Free messages used ({userMessageCount}/{freeMessageLimit})
+            </p>
+            <Button size="sm" className="mt-2" onClick={() => navigate("/pricing")}>
+              Upgrade to Continue
             </Button>
-          ))}
-        </div>
-
+          </div>
+        )}
         <div className="flex gap-2">
-          <Button variant="ghost" size="icon">
-            <ImageIcon className="w-5 h-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Smile className="w-5 h-5" />
-          </Button>
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Type a message..."
+            placeholder={
+              userMessageCount >= freeMessageLimit
+                ? "Upgrade to send more messages..."
+                : "Type your message..."
+            }
             className="flex-1"
+            disabled={userMessageCount >= freeMessageLimit}
           />
-          <Button onClick={handleSend} size="icon">
-            <Send className="w-5 h-5" />
+          <Button onClick={handleSend} size="icon" disabled={userMessageCount >= freeMessageLimit}>
+            <Send className="w-4 h-4" />
           </Button>
         </div>
       </div>

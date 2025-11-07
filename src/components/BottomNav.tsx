@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { MessageCircle, Video, CreditCard, History, Settings } from "lucide-react";
+import { Home, MessageCircle, Video, CreditCard, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const BottomNav = () => {
@@ -7,11 +7,11 @@ const BottomNav = () => {
   const location = useLocation();
 
   const navItems = [
-    { icon: MessageCircle, label: "Home", path: "/" },
-    { icon: Video, label: "Generate", path: "/video" },
-    { icon: History, label: "Tasks", path: "/tasks" },
-    { icon: CreditCard, label: "Credits", path: "/subscription" },
-    { icon: Settings, label: "Settings", path: "/settings" },
+    { icon: Home, label: "Home", path: "/" },
+    { icon: MessageCircle, label: "Chat", path: "/chat" },
+    { icon: Video, label: "Video", path: "/video" },
+    { icon: CreditCard, label: "Pricing", path: "/pricing" },
+    { icon: User, label: "Mine", path: "/mine" },
   ];
 
   return (
