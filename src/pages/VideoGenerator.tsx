@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Wand2, Download, Share2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Upload } from "lucide-react";
 import { toast } from "sonner";
 
 interface Template {
@@ -35,91 +38,57 @@ const templates: Template[] = [
 ];
 
 const VideoGenerator = () => {
-  const [mode, setMode] = useState<"select" | "image" | "text">("select");
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [textPrompt, setTextPrompt] = useState("");
-  const [generatedVideo, setGeneratedVideo] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [quality, setQuality] = useState("standard");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
-      toast.success("Image uploaded successfully!");
+      toast.success("图片上传成功！");
     }
   };
 
   const handleGenerate = () => {
-    if (!selectedFile) {
-      toast.error("Please upload an image first");
-      return;
-    }
-
-    setIsGenerating(true);
-    setTimeout(() => {
-      setGeneratedVideo("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
-      setIsGenerating(false);
-      toast.success("Video generated successfully!");
-    }, 3000);
+    const credits = quality === "standard" ? 10 : quality === "hd" ? 20 : 50;
+    toast.success(`开始生成视频，将消耗 ${credits} 积分`);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-6">
-      <div className="container mx-auto px-4">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Video Generator</h1>
-          <p className="text-muted-foreground">
-            {mode === "select" && "Choose a generation mode"}
-            {mode === "image" && "Upload image to generate video"}
-            {mode === "text" && "Describe your video"}
-          </p>
-        </div>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-6 pb-20">
+        <h1 className="text-2xl font-bold mb-6">AI 视频</h1>
 
-        {mode === "select" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => setMode("image")}>
-              <CardContent className="p-8 text-center">
-                <Upload className="w-16 h-16 mx-auto mb-4 text-primary" />
-                <h2 className="text-2xl font-bold mb-2">📸 Image to Video</h2>
-                <p className="text-muted-foreground">Upload an image and transform it into a dynamic video</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="cursor-pointer hover:shadow-lg transition-all" onClick={() => setMode("text")}>
-              <CardContent className="p-8 text-center">
-                <Wand2 className="w-16 h-16 mx-auto mb-4 text-primary" />
-                <h2 className="text-2xl font-bold mb-2">✍️ Text to Video</h2>
-                <p className="text-muted-foreground">Describe your vision and AI will create the video</p>
-              </CardContent>
-            </Card>
-          </div>
-        ) : !generatedVideo ? (
-          <>
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold mb-4">Choose a Template</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <Tabs defaultValue="image" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="image">图生视频</TabsTrigger>
+            <TabsTrigger value="text">文生视频</TabsTrigger>
+          </TabsList>
+
+          {/* 图生视频 Tab */}
+          <TabsContent value="image" className="space-y-6">
+            <div>
+              <h2 className="text-lg font-semibold mb-4">选择模板</h2>
+              <div className="grid grid-cols-2 gap-4">
                 {templates.map((template) => (
-                  <Card 
-                    key={template.id} 
+                  <Card
+                    key={template.id}
                     className={`cursor-pointer hover:shadow-lg transition-all ${
-                      selectedTemplate?.id === template.id ? 'ring-2 ring-primary' : ''
+                      selectedTemplate?.id === template.id ? "ring-2 ring-primary" : ""
                     }`}
                     onClick={() => setSelectedTemplate(template)}
                   >
-                    <CardContent className="p-4">
+                    <CardContent className="p-3">
                       <img
                         src={template.thumbnail}
                         alt={template.name}
-                        className="w-full aspect-video object-cover rounded-lg mb-3"
+                        className="w-full aspect-video object-cover rounded-lg mb-2"
                       />
-                      <h3 className="font-semibold mb-2">{template.name}</h3>
-                      <div className="flex flex-wrap gap-1">
-                        {template.tags.map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
+                      <h3 className="font-medium text-sm mb-1">{template.name}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {template.tags.join(" · ")}
+                      </p>
                     </CardContent>
                   </Card>
                 ))}
@@ -127,114 +96,153 @@ const VideoGenerator = () => {
             </div>
 
             <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">
-                  {mode === "image" ? "Upload Image" : "Describe Your Video"}
-                </h2>
-                
-                {mode === "text" && (
-                  <div className="mb-4">
-                    <textarea
-                      className="w-full min-h-[120px] p-4 border border-input rounded-lg bg-background"
-                      placeholder="Describe the content you want to create..."
-                      value={textPrompt}
-                      onChange={(e) => setTextPrompt(e.target.value)}
-                    />
-                  </div>
-                )}
-                
-                <div className="border-2 border-dashed border-primary/20 rounded-lg p-8 text-center mb-4">
+              <CardContent className="p-4 space-y-4">
+                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
                   <input
                     type="file"
-                    id="file-upload"
+                    id="image-upload"
                     className="hidden"
                     accept="image/*"
                     onChange={handleFileChange}
                   />
-                  <label htmlFor="file-upload" className="cursor-pointer">
-                    <Upload className="w-12 h-12 mx-auto mb-4 text-primary" />
-                    <p className="text-sm text-muted-foreground mb-2">
-                      {selectedFile ? selectedFile.name : "Click to upload an image"}
+                  <label htmlFor="image-upload" className="cursor-pointer">
+                    <Upload className="w-12 h-12 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {selectedFile ? selectedFile.name : "点击上传参考图"}
                     </p>
-                    <Button variant="outline" type="button">
-                      Select File
-                    </Button>
                   </label>
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Style</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      <Button variant="outline" size="sm">Realistic</Button>
-                      <Button variant="outline" size="sm">Dreamy</Button>
-                      <Button variant="outline" size="sm">Artistic</Button>
+                <div>
+                  <h3 className="text-sm font-medium mb-3">质量</h3>
+                  <RadioGroup value={quality} onValueChange={setQuality}>
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg mb-2">
+                      <RadioGroupItem value="standard" id="standard" />
+                      <Label htmlFor="standard" className="flex-1 cursor-pointer">
+                        <div className="flex justify-between items-center">
+                          <span>标准</span>
+                          <span className="text-sm text-muted-foreground">10 积分</span>
+                        </div>
+                      </Label>
                     </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Duration</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button variant="outline" size="sm">5 seconds</Button>
-                      <Button variant="outline" size="sm">10 seconds</Button>
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg mb-2">
+                      <RadioGroupItem value="hd" id="hd" />
+                      <Label htmlFor="hd" className="flex-1 cursor-pointer">
+                        <div className="flex justify-between items-center">
+                          <span>高清</span>
+                          <span className="text-sm text-muted-foreground">20 积分</span>
+                        </div>
+                      </Label>
                     </div>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setMode("select");
-                        setSelectedFile(null);
-                        setTextPrompt("");
-                      }}
-                    >
-                      Back
-                    </Button>
-                    <Button
-                      onClick={handleGenerate}
-                      className="flex-1"
-                      disabled={(mode === "image" && !selectedFile) || (mode === "text" && !textPrompt.trim()) || isGenerating}
-                    >
-                      <Wand2 className="w-4 h-4 mr-2" />
-                      {isGenerating ? "Generating..." : "Generate Video (10 Credits)"}
-                    </Button>
-                  </div>
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                      <RadioGroupItem value="ultra" id="ultra" />
+                      <Label htmlFor="ultra" className="flex-1 cursor-pointer">
+                        <div className="flex justify-between items-center">
+                          <span>超清</span>
+                          <span className="text-sm text-muted-foreground">50 积分</span>
+                        </div>
+                      </Label>
+                    </div>
+                  </RadioGroup>
                 </div>
+
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  onClick={handleGenerate}
+                  disabled={!selectedTemplate || !selectedFile}
+                >
+                  生成视频
+                </Button>
               </CardContent>
             </Card>
-          </>
-        ) : (
-          <Card>
-            <CardContent className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Generated Video</h2>
-              <video
-                src={generatedVideo}
-                controls
-                className="w-full rounded-lg mb-4"
-              />
-              <div className="flex gap-2">
-                <Button className="flex-1">
-                  <Download className="w-4 h-4 mr-2" />
-                  Download
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Share
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setGeneratedVideo(null);
-                    setSelectedFile(null);
-                  }}
+          </TabsContent>
+
+          {/* 文生视频 Tab */}
+          <TabsContent value="text" className="space-y-6">
+            <Card>
+              <CardContent className="p-4 space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium mb-3">视频描述</h3>
+                  <Textarea
+                    placeholder="描述你想要的视频场景..."
+                    className="min-h-[120px] resize-none"
+                    value={textPrompt}
+                    onChange={(e) => setTextPrompt(e.target.value)}
+                    maxLength={200}
+                  />
+                  <p className="text-xs text-muted-foreground text-right mt-1">
+                    {textPrompt.length}/200
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-medium mb-2">参考图片（可选）</h3>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    上传参考图可提升效果(可选)
+                  </p>
+                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                    <input
+                      type="file"
+                      id="text-image-upload"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                    <label htmlFor="text-image-upload" className="cursor-pointer">
+                      <Upload className="w-12 h-12 mx-auto mb-2 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">
+                        {selectedFile ? selectedFile.name : "点击上传参考图"}
+                      </p>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-medium mb-3">质量</h3>
+                  <RadioGroup value={quality} onValueChange={setQuality}>
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg mb-2">
+                      <RadioGroupItem value="standard" id="text-standard" />
+                      <Label htmlFor="text-standard" className="flex-1 cursor-pointer">
+                        <div className="flex justify-between items-center">
+                          <span>标准</span>
+                          <span className="text-sm text-muted-foreground">10 积分</span>
+                        </div>
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg mb-2">
+                      <RadioGroupItem value="hd" id="text-hd" />
+                      <Label htmlFor="text-hd" className="flex-1 cursor-pointer">
+                        <div className="flex justify-between items-center">
+                          <span>高清</span>
+                          <span className="text-sm text-muted-foreground">20 积分</span>
+                        </div>
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                      <RadioGroupItem value="ultra" id="text-ultra" />
+                      <Label htmlFor="text-ultra" className="flex-1 cursor-pointer">
+                        <div className="flex justify-between items-center">
+                          <span>超清</span>
+                          <span className="text-sm text-muted-foreground">50 积分</span>
+                        </div>
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  onClick={handleGenerate}
+                  disabled={!textPrompt.trim()}
                 >
-                  Generate New
+                  生成视频
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
