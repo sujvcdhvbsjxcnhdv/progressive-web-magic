@@ -96,7 +96,7 @@ const Chat = () => {
     <div
       className="min-h-screen flex flex-col"
       style={{
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${character?.cover})`,
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${character?.avatar})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -138,31 +138,16 @@ const Chat = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 bg-background/90 backdrop-blur-sm border-t">
-        {userMessageCount >= freeMessageLimit && (
-          <div className="mb-3 p-3 bg-primary/10 border border-primary rounded-lg text-center">
-            <p className="text-sm text-primary font-medium">
-              Free messages used ({userMessageCount}/{freeMessageLimit})
-            </p>
-            <Button size="sm" className="mt-2" onClick={() => navigate("/pricing")}>
-              Upgrade to Continue
-            </Button>
-          </div>
-        )}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/90 backdrop-blur-sm border-t">
         <div className="flex gap-2">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && handleSend()}
-            placeholder={
-              userMessageCount >= freeMessageLimit
-                ? "Upgrade to send more messages..."
-                : "Type your message..."
-            }
+            placeholder="Type your message..."
             className="flex-1"
-            disabled={userMessageCount >= freeMessageLimit}
           />
-          <Button onClick={handleSend} size="icon" disabled={userMessageCount >= freeMessageLimit}>
+          <Button onClick={handleSend} size="icon" className="bg-primary">
             <Send className="w-4 h-4" />
           </Button>
         </div>

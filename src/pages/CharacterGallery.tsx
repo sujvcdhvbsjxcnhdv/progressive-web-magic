@@ -57,16 +57,32 @@ const CharacterGallery = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-6">
       <div className="container mx-auto px-4">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-1">AIVibe</h1>
             <p className="text-sm text-muted-foreground">选择你喜欢的角色扮演</p>
           </div>
-          <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-full border">
-            <Coins className="w-5 h-5 text-primary" />
-            <span className="font-bold">{credits}</span>
+          <div className="flex items-center gap-3">
+            <Badge variant="default" className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1">
+              VIP
+            </Badge>
+            <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-full border">
+              <Coins className="w-5 h-5 text-primary" />
+              <span className="font-bold">{credits}</span>
+            </div>
           </div>
         </div>
+
+        <Card className="mb-6 overflow-hidden bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 border-0">
+          <CardContent className="p-6 text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold mb-2">与AI角色互动</h2>
+                <p className="text-sm opacity-90">发现独特的虚拟角色，享受沉浸式对话体验，或生成创意视频内容</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {characters.map((character) => (
