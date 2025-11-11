@@ -94,7 +94,7 @@ const Chat = () => {
 
   return (
     <div
-      className="min-h-screen flex flex-col"
+      className="min-h-screen flex flex-col pb-32"
       style={{
         backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${character?.avatar})`,
         backgroundSize: "cover",
@@ -138,7 +138,7 @@ const Chat = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t">
+      <div className="fixed bottom-16 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t">
         <div className="container mx-auto max-w-4xl">
           <div className="flex gap-2">
             <Input
