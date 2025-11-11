@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { MessageCircle, Coins } from "lucide-react";
+import featuredBanner from "@/assets/featured-banner.jpg";
 
 const characters = [
   {
@@ -73,12 +74,19 @@ const CharacterGallery = () => {
           </div>
         </div>
 
-        <Card className="mb-6 overflow-hidden bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 border-0">
-          <CardContent className="p-6 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold mb-2">与AI角色互动</h2>
-                <p className="text-sm opacity-90">发现独特的虚拟角色，享受沉浸式对话体验，或生成创意视频内容</p>
+        <Card className="mb-6 overflow-hidden border-0 bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600">
+          <CardContent className="p-0">
+            <div className="relative">
+              <img 
+                src={featuredBanner} 
+                alt="Featured Characters" 
+                className="w-full h-32 object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end">
+                <div className="p-4 text-white w-full">
+                  <h2 className="text-lg font-bold mb-1">与AI角色互动</h2>
+                  <p className="text-xs opacity-90">发现独特的虚拟角色，享受沉浸式对话体验，或生成创意视频内容</p>
+                </div>
               </div>
             </div>
           </CardContent>
