@@ -4,8 +4,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Play, Download, Trash2 } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Play, Download, Trash2, Coins, ChevronRight, Globe } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface VideoTask {
   id: string;
@@ -48,9 +56,12 @@ const mockTasks: VideoTask[] = [
   },
 ];
 
-const TaskCenter = () => {
+const Mine = () => {
   const navigate = useNavigate();
   const [tasks, setTasks] = useState<VideoTask[]>(mockTasks);
+  const [language, setLanguage] = useState("en");
+  const credits = 50;
+  const isVip = false;
 
   const handleDelete = (taskId: string) => {
     setTasks(tasks.filter(task => task.id !== taskId));
@@ -66,107 +77,165 @@ const TaskCenter = () => {
   const getStatusBadge = (status: VideoTask["status"]) => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-green-500">✅ Completed</Badge>;
+        return <Badge className="bg-green-500 text-white">✅ Completed</Badge>;
       case "processing":
-        return <Badge className="bg-blue-500">🔄 Processing</Badge>;
+        return <Badge className="bg-blue-500 text-white">🔄 Processing</Badge>;
       case "queued":
         return <Badge variant="secondary">⏳ Queued</Badge>;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-6">
-      <div className="container mx-auto px-4">
-        <div className="mb-6 flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/")}
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">My Video Tasks</h1>
-            <p className="text-sm text-muted-foreground">{tasks.length} tasks in queue</p>
-          </div>
-        </div>
+    <div className="min-h-screen bg-background pb-20">
+      <div className="container mx-auto px-4 py-6 max-w-2xl">
+        <h1 className="text-2xl font-bold mb-6">Mine</h1>
 
-        <div className="space-y-4">
-          {tasks.map((task) => (
-            <Card key={task.id}>
-              <CardContent className="p-4">
-                <div className="flex gap-4">
-                  <img
-                    src={task.thumbnail}
-                    alt={task.title}
-                    className="w-32 h-24 object-cover rounded-lg"
-                  />
-                  
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h3 className="font-semibold">{task.title}</h3>
-                        <p className="text-xs text-muted-foreground">
-                          {task.createdAt.toLocaleString()}
-                        </p>
+        {/* User Profile Card */}
+        <Card className="mb-6">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4 mb-4">
+              <Avatar className="w-16 h-16">
+                <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=guest" />
+                <AvatarFallback>GU</AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <h3 className="font-bold text-lg">Guest User</h3>
+                <p className="text-sm text-muted-foreground">免费用户</p>
+              </div>
+            </div>
+            
+            <div className="bg-primary/5 rounded-lg p-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Coins className="w-5 h-5 text-primary" />
+                <span className="font-bold text-lg">{credits} Credits</span>
+              </div>
+              <Button 
+                size="sm"
+                onClick={() => navigate("/pricing")}
+              >
+                充值
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* My Videos Section */}
+        <Card className="mb-6">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">My Videos</h2>
+              {tasks.length > 0 && (
+                <Button variant="ghost" size="sm">
+                  更多 <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              )}
+            </div>
+
+            {tasks.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                还没有生成视频
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {tasks.slice(0, 3).map((task) => (
+                  <div key={task.id} className="flex gap-3 p-3 rounded-lg border">
+                    <img
+                      src={task.thumbnail}
+                      alt={task.title}
+                      className="w-24 h-18 object-cover rounded"
+                    />
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <h3 className="font-medium text-sm truncate">{task.title}</h3>
+                        {getStatusBadge(task.status)}
                       </div>
-                      {getStatusBadge(task.status)}
-                    </div>
-
-                    {task.status === "processing" && (
-                      <div className="mb-3">
-                        <Progress value={task.progress} className="h-2" />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {task.progress}% • Est. {task.estimatedTime}
-                        </p>
-                      </div>
-                    )}
-
-                    {task.status === "queued" && (
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Waiting in queue • Est. {task.estimatedTime}
+                      
+                      <p className="text-xs text-muted-foreground mb-2">
+                        {task.createdAt.toLocaleDateString()}
                       </p>
-                    )}
 
-                    <div className="flex gap-2">
-                      {task.status === "completed" && task.videoUrl && (
-                        <>
-                          <Button size="sm" variant="outline">
-                            <Play className="w-4 h-4 mr-1" />
+                      {task.status === "processing" && (
+                        <div>
+                          <Progress value={task.progress} className="h-1.5 mb-1" />
+                          <p className="text-xs text-muted-foreground">
+                            {task.progress}% • {task.estimatedTime}
+                          </p>
+                        </div>
+                      )}
+
+                      {task.status === "queued" && (
+                        <p className="text-xs text-muted-foreground">
+                          Est. {task.estimatedTime}
+                        </p>
+                      )}
+
+                      {task.status === "completed" && (
+                        <div className="flex gap-1">
+                          <Button size="sm" variant="outline" className="h-7 text-xs">
+                            <Play className="w-3 h-3 mr-1" />
                             Play
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => handleDownload(task)}>
-                            <Download className="w-4 h-4 mr-1" />
+                          <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleDownload(task)}>
+                            <Download className="w-3 h-3 mr-1" />
                             Download
                           </Button>
-                        </>
+                        </div>
                       )}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleDelete(task.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-        <div className="mt-6">
-          <Button
-            className="w-full"
-            onClick={() => navigate("/video")}
-          >
-            Create New Video
-          </Button>
-        </div>
+        {/* Settings Section */}
+        <Card>
+          <CardContent className="p-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <span className="text-lg">⚙️</span> Settings
+            </h2>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center gap-2">
+                  <Globe className="w-5 h-5 text-muted-foreground" />
+                  <span>Language</span>
+                </div>
+                <Select value={language} onValueChange={setLanguage}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="zh">中文</SelectItem>
+                    <SelectItem value="ja">日本語</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <button className="w-full text-left py-2 hover:text-primary transition-colors">
+                服务条款
+              </button>
+
+              <button className="w-full text-left py-2 hover:text-primary transition-colors">
+                隐私政策
+              </button>
+
+              <button className="w-full text-left py-2 hover:text-primary transition-colors">
+                清除缓存
+              </button>
+
+              <button className="w-full text-left py-2 text-destructive hover:text-destructive/80 transition-colors flex items-center gap-2">
+                <span>🚪</span> Logout
+              </button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
 };
 
-export default TaskCenter;
+export default Mine;

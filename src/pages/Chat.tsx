@@ -138,18 +138,20 @@ const Chat = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/90 backdrop-blur-sm border-t">
-        <div className="flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Type your message..."
-            className="flex-1"
-          />
-          <Button onClick={handleSend} size="icon" className="bg-primary">
-            <Send className="w-4 h-4" />
-          </Button>
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t">
+        <div className="container mx-auto max-w-4xl">
+          <div className="flex gap-2">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleSend()}
+              placeholder="Type your message..."
+              className="flex-1 bg-background"
+            />
+            <Button onClick={handleSend} size="icon" className="bg-primary flex-shrink-0">
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>

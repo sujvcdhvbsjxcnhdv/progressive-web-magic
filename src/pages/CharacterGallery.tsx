@@ -57,18 +57,18 @@ const CharacterGallery = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-6">
       <div className="container mx-auto px-4">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-1">AIVibe</h1>
-            <p className="text-sm text-muted-foreground">选择你喜欢的角色扮演</p>
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl font-bold mb-0.5">AIVibe</h1>
+            <p className="text-xs text-muted-foreground">AI Character Interaction</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Badge variant="default" className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1">
               VIP
             </Badge>
-            <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-full border">
-              <Coins className="w-5 h-5 text-primary" />
-              <span className="font-bold">{credits}</span>
+            <div className="flex items-center gap-2 bg-card px-3 py-1.5 rounded-full border">
+              <Coins className="w-4 h-4 text-primary" />
+              <span className="font-semibold text-sm">{credits}</span>
             </div>
           </div>
         </div>
