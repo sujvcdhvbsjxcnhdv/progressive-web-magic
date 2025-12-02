@@ -4,7 +4,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { MessageCircle, Coins } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import LoginPrompt from "@/components/LoginPrompt";
 import featuredBanner from "@/assets/featured-banner.jpg";
 
 const characters = [
@@ -52,7 +55,9 @@ const characters = [
 
 const CharacterGallery = () => {
   const navigate = useNavigate();
+  const { user, profile } = useAuth();
   const [selectedCharacter, setSelectedCharacter] = useState<typeof characters[0] | null>(null);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const credits = 150;
 
   return (
@@ -64,13 +69,25 @@ const CharacterGallery = () => {
             <p className="text-xs text-muted-foreground">Crush on the Vibe</p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <Badge variant="default" className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1">
-              VIP
-            </Badge>
-            <div className="flex items-center gap-2 bg-card px-3 py-1.5 rounded-full border">
-              <Coins className="w-4 h-4 text-primary" />
-              <span className="font-semibold text-sm">{credits}</span>
-            </div>
+            {user ? (
+              <>
+                <Badge variant="default" className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1">
+                  VIP
+                </Badge>
+                <div className="flex items-center gap-2 bg-card px-3 py-1.5 rounded-full border">
+                  <Coins className="w-4 h-4 text-primary" />
+                  <span className="font-semibold text-sm">{credits}</span>
+                </div>
+                <Avatar className="w-8 h-8 cursor-pointer" onClick={() => navigate("/mine")}>
+                  <AvatarImage src={profile?.avatar_url || undefined} />
+                  <AvatarFallback>{profile?.username?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                </Avatar>
+              </>
+            ) : (
+              <Button onClick={() => navigate("/auth")} size="sm" variant="default">
+                Login
+              </Button>
+            )}
           </div>
         </div>
 
@@ -162,8 +179,13 @@ const CharacterGallery = () => {
                   className="w-full"
                   size="lg"
                   onClick={() => {
-                    setSelectedCharacter(null);
-                    navigate(`/chat/${selectedCharacter.id}`);
+                    if (!user) {
+                      setSelectedCharacter(null);
+                      setShowLoginPrompt(true);
+                    } else {
+                      setSelectedCharacter(null);
+                      navigate(`/chat/${selectedCharacter.id}`);
+                    }
                   }}
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />
@@ -173,6 +195,12 @@ const CharacterGallery = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        <LoginPrompt
+          open={showLoginPrompt}
+          onOpenChange={setShowLoginPrompt}
+          message="Please login to start chatting with AI characters."
+        />
       </div>
     </div>
   );

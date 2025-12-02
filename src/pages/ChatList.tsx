@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { MessageCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import LoginPrompt from "@/components/LoginPrompt";
 
 interface ChatRecord {
   id: string;
@@ -35,7 +37,15 @@ const mockChats: ChatRecord[] = [
 
 const ChatList = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [chats, setChats] = useState<ChatRecord[]>(mockChats);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      setShowLoginPrompt(true);
+    }
+  }, [user]);
 
   const handleDelete = (chatId: string) => {
     setChats(chats.filter(chat => chat.id !== chatId));
@@ -112,6 +122,17 @@ const ChatList = () => {
             ))
           )}
         </div>
+
+        <LoginPrompt
+          open={showLoginPrompt}
+          onOpenChange={(open) => {
+            setShowLoginPrompt(open);
+            if (!open && !user) {
+              navigate("/");
+            }
+          }}
+          message="Please login to view your chat history."
+        />
       </div>
     </div>
   );

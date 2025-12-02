@@ -7,6 +7,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import LoginPrompt from "@/components/LoginPrompt";
 
 interface Template {
   id: string;
@@ -57,11 +59,14 @@ const templates: Template[] = [
 const categories = ["Trending", "Halloween", "From Creator", "AI Dance", "Couple Video", "Party"];
 
 const VideoGenerator = () => {
+  const { user } = useAuth();
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [textPrompt, setTextPrompt] = useState("");
   const [quality, setQuality] = useState("standard");
   const [selectedCategory, setSelectedCategory] = useState("Trending");
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [attemptedQuality, setAttemptedQuality] = useState<string>("");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -70,7 +75,20 @@ const VideoGenerator = () => {
     }
   };
 
+  const handleQualityChange = (value: string) => {
+    if (!user && selectedFile) {
+      setAttemptedQuality(value);
+      setShowLoginPrompt(true);
+    } else {
+      setQuality(value);
+    }
+  };
+
   const handleGenerate = () => {
+    if (!user) {
+      setShowLoginPrompt(true);
+      return;
+    }
     const credits = quality === "standard" ? 10 : quality === "hd" ? 20 : 50;
     toast.success(`开始生成视频，将消耗 ${credits} 积分`);
   };
@@ -136,7 +154,7 @@ const VideoGenerator = () => {
                 <CardContent className="p-4 space-y-4">
                   <div>
                     <h3 className="text-sm font-medium mb-3">质量</h3>
-                    <RadioGroup value={quality} onValueChange={setQuality}>
+                    <RadioGroup value={quality} onValueChange={handleQualityChange}>
                       <div className="flex items-center space-x-2 p-3 border rounded-lg mb-2">
                         <RadioGroupItem value="standard" id="standard" />
                         <Label htmlFor="standard" className="flex-1 cursor-pointer">
@@ -221,7 +239,7 @@ const VideoGenerator = () => {
 
                 <div>
                   <h3 className="text-sm font-medium mb-3">质量</h3>
-                  <RadioGroup value={quality} onValueChange={setQuality}>
+                  <RadioGroup value={quality} onValueChange={handleQualityChange}>
                     <div className="flex items-center space-x-2 p-3 border rounded-lg mb-2">
                       <RadioGroupItem value="standard" id="text-standard" />
                       <Label htmlFor="text-standard" className="flex-1 cursor-pointer">
@@ -264,6 +282,12 @@ const VideoGenerator = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <LoginPrompt
+          open={showLoginPrompt}
+          onOpenChange={setShowLoginPrompt}
+          message="Please login to generate videos."
+        />
       </div>
     </div>
   );
