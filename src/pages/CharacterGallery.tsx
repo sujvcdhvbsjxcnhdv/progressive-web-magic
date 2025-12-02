@@ -60,8 +60,8 @@ const CharacterGallery = () => {
       <div className="container mx-auto px-4">
         <div className="mb-6 flex items-center justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-bold mb-0.5">AIVibe</h1>
-            <p className="text-xs text-muted-foreground">AI Character Interaction</p>
+            <h1 className="text-xl font-bold mb-0.5">CrushVibe AI</h1>
+            <p className="text-xs text-muted-foreground">Crush on the Vibe</p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <Badge variant="default" className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1">
