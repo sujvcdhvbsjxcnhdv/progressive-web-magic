@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Play, Download, Trash2, Coins, ChevronRight, Globe } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import LoginPrompt from "@/components/LoginPrompt";
 import {
   Select,
   SelectContent,
@@ -58,10 +60,24 @@ const mockTasks: VideoTask[] = [
 
 const Mine = () => {
   const navigate = useNavigate();
+  const { user, profile, signOut } = useAuth();
   const [tasks, setTasks] = useState<VideoTask[]>(mockTasks);
   const [language, setLanguage] = useState("en");
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const credits = 50;
   const isVip = false;
+
+  useEffect(() => {
+    if (!user) {
+      setShowLoginPrompt(true);
+    }
+  }, [user]);
+
+  const handleLogout = async () => {
+    await signOut();
+    toast.success("Logged out successfully");
+    navigate("/");
+  };
 
   const handleDelete = (taskId: string) => {
     setTasks(tasks.filter(task => task.id !== taskId));
@@ -95,12 +111,12 @@ const Mine = () => {
           <CardContent className="p-6">
             <div className="flex items-center gap-4 mb-4">
               <Avatar className="w-16 h-16">
-                <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=guest" />
-                <AvatarFallback>GU</AvatarFallback>
+                <AvatarImage src={profile?.avatar_url || "https://api.dicebear.com/7.x/avataaars/svg?seed=guest"} />
+                <AvatarFallback>{profile?.username?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h3 className="font-bold text-lg">Guest User</h3>
-                <p className="text-sm text-muted-foreground">免费用户</p>
+                <h3 className="font-bold text-lg">{profile?.username || user?.email?.split("@")[0] || "User"}</h3>
+                <p className="text-sm text-muted-foreground">{isVip ? "VIP会员" : "免费用户"}</p>
               </div>
             </div>
             
@@ -227,12 +243,26 @@ const Mine = () => {
                 清除缓存
               </button>
 
-              <button className="w-full text-left py-2 text-destructive hover:text-destructive/80 transition-colors flex items-center gap-2">
+              <button 
+                className="w-full text-left py-2 text-destructive hover:text-destructive/80 transition-colors flex items-center gap-2"
+                onClick={handleLogout}
+              >
                 <span>🚪</span> Logout
               </button>
             </div>
           </CardContent>
         </Card>
+
+        <LoginPrompt
+          open={showLoginPrompt}
+          onOpenChange={(open) => {
+            setShowLoginPrompt(open);
+            if (!open && !user) {
+              navigate("/");
+            }
+          }}
+          message="Please login to access your profile."
+        />
       </div>
     </div>
   );

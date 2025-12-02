@@ -1,12 +1,22 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Check, Sparkles, Zap } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import LoginPrompt from "@/components/LoginPrompt";
 
 const Pricing = () => {
+  const { user } = useAuth();
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+
   const handlePurchase = (plan: string) => {
+    if (!user) {
+      setShowLoginPrompt(true);
+      return;
+    }
     toast.success(`Redirecting to payment for ${plan}...`);
     setTimeout(() => {
       toast.success("Payment successful!");
@@ -296,6 +306,12 @@ const Pricing = () => {
             </p>
           </TabsContent>
         </Tabs>
+
+        <LoginPrompt
+          open={showLoginPrompt}
+          onOpenChange={setShowLoginPrompt}
+          message="Please login to purchase."
+        />
       </div>
     </div>
   );

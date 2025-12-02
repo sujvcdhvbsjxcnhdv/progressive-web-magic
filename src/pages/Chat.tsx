@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Send } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import LoginPrompt from "@/components/LoginPrompt";
 
 const characters = {
   "1": {
@@ -38,6 +40,7 @@ interface Message {
 const Chat = () => {
   const { characterId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -48,6 +51,7 @@ const Chat = () => {
     },
   ]);
   const [input, setInput] = useState("");
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const freeMessageLimit = 3;
   const userMessageCount = messages.filter(m => m.sender === "user").length;
 
@@ -64,6 +68,11 @@ const Chat = () => {
 
   const handleSend = () => {
     if (!input.trim()) return;
+
+    if (!user) {
+      setShowLoginPrompt(true);
+      return;
+    }
 
     if (userMessageCount >= freeMessageLimit) {
       navigate("/pricing");
@@ -154,6 +163,12 @@ const Chat = () => {
           </div>
         </div>
       </div>
+
+      <LoginPrompt
+        open={showLoginPrompt}
+        onOpenChange={setShowLoginPrompt}
+        message="Please login to send messages."
+      />
     </div>
   );
 };
