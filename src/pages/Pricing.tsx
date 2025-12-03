@@ -148,12 +148,16 @@ const Pricing = () => {
           </Button>
           
           <div className="flex items-center gap-2">
-            {membershipBadge && (
-              <Badge className={`text-xs px-2 py-0.5 ${membershipBadge.className}`}>
-                {membershipBadge.text}
-              </Badge>
-            )}
-            <div className="flex items-center gap-1 bg-secondary rounded-full px-2 py-1">
+            <Badge 
+              className="bg-primary/20 text-primary border-primary/30 px-3 py-1 font-semibold cursor-pointer hover:bg-primary/30 transition-colors text-xs"
+              onClick={() => setMainTab("chat")}
+            >
+              PRO
+            </Badge>
+            <div 
+              className="flex items-center gap-1 bg-secondary rounded-full px-2 py-1 cursor-pointer hover:bg-secondary/80 transition-colors"
+              onClick={() => setMainTab("credits")}
+            >
               <Zap className="w-3 h-3 text-primary" />
               <span className="text-xs font-medium">151</span>
             </div>
