@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { MessageCircle, Coins, Menu } from "lucide-react";
+import { MessageCircle, Menu, X, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginPrompt from "@/components/LoginPrompt";
 import AppSidebar from "@/components/AppSidebar";
@@ -14,64 +12,71 @@ const characters = [
   {
     id: 1,
     name: "Luna",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
-    description: "Creative AI companion for storytelling",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=600&fit=crop",
+    description: "Luna is your creative partner in the worl..",
     fullDescription: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
-    background: "A professional storyteller with a passion for visual narratives and creative expression.",
-    tags: ["Creative", "Storytelling"],
-    conversations: 1234,
+    background: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
+    tags: ["Female", "Cute"],
+    conversations: 1600,
   },
   {
     id: 2,
-    name: "Max",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
-    description: "Tech expert for dynamic video creation",
-    fullDescription: "Max specializes in technical and educational content. From coding tutorials to tech reviews, he helps transform your technical ideas into engaging video content.",
-    background: "A tech enthusiast with deep knowledge in programming and digital innovation.",
-    tags: ["Tech", "Educational"],
-    conversations: 2341,
+    name: "Luna",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=600&fit=crop",
+    description: "Luna is your creative partner in the worl..",
+    fullDescription: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
+    background: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
+    tags: ["Female", "Cute"],
+    conversations: 1600,
   },
   {
     id: 3,
-    name: "Aria",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
-    description: "Wellness guide for calming videos",
-    fullDescription: "Aria brings peace and mindfulness to your content. She specializes in creating serene meditation videos, wellness tips, and relaxing visual experiences.",
-    background: "A certified mindfulness coach dedicated to spreading calm and positivity through visual media.",
-    tags: ["Wellness", "Meditation"],
-    conversations: 3456,
+    name: "Luna",
+    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=600&fit=crop",
+    description: "Luna is your creative partner in the worl..",
+    fullDescription: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
+    background: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
+    tags: ["Female", "Cute"],
+    conversations: 1600,
   },
   {
     id: 4,
-    name: "Echo",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
-    description: "Music expert for rhythm and dance videos",
-    fullDescription: "Echo is your go-to companion for music-driven content. From dance videos to music visualizations, he helps you create captivating audiovisual experiences.",
-    background: "A passionate musician and performer who understands the power of music in storytelling.",
-    tags: ["Music", "Dance"],
-    conversations: 4567,
+    name: "Luna",
+    avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=600&fit=crop",
+    description: "Luna is your creative partner in the worl..",
+    fullDescription: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
+    background: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
+    tags: ["Female", "Cute"],
+    conversations: 1600,
   },
   {
     id: 5,
-    name: "Nova",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop",
-    description: "Fashion & lifestyle content creator",
-    fullDescription: "Nova is your style guide for fashion and lifestyle content. She helps create stunning visual content for beauty, fashion, and daily life inspiration.",
-    background: "A fashion enthusiast with an eye for aesthetics and trends.",
-    tags: ["Fashion", "Lifestyle"],
-    conversations: 5678,
+    name: "Luna",
+    avatar: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&h=600&fit=crop",
+    description: "Luna is your creative partner in the worl..",
+    fullDescription: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
+    background: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
+    tags: ["Female", "Cute"],
+    conversations: 1600,
   },
   {
     id: 6,
-    name: "Zephyr",
-    avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=400&fit=crop",
-    description: "Adventure & travel storyteller",
-    fullDescription: "Zephyr brings excitement to your travel and adventure content. From exotic destinations to thrilling experiences, he captures the spirit of exploration.",
-    background: "A world traveler with stories from every corner of the globe.",
-    tags: ["Travel", "Adventure"],
-    conversations: 6789,
+    name: "Luna",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop",
+    description: "Luna is your creative partner in the worl..",
+    fullDescription: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
+    background: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
+    tags: ["Female", "Cute"],
+    conversations: 1600,
   },
 ];
+
+const formatCount = (num: number) => {
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + "K";
+  }
+  return num.toString();
+};
 
 const CharacterGallery = () => {
   const navigate = useNavigate();
@@ -79,14 +84,24 @@ const CharacterGallery = () => {
   const [selectedCharacter, setSelectedCharacter] = useState<typeof characters[0] | null>(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const credits = 150;
-  const hasNewMessages = true; // This would come from a real notification system
+  const credits = 151;
+  const hasNewMessages = true;
+
+  const handleStartChat = () => {
+    if (!user) {
+      setSelectedCharacter(null);
+      setShowLoginPrompt(true);
+    } else if (selectedCharacter) {
+      setSelectedCharacter(null);
+      navigate(`/chat/${selectedCharacter.id}`);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm">
+        <div className="px-4 py-3 flex items-center justify-between">
           <button
             onClick={() => setSidebarOpen(true)}
             className="relative p-2 -ml-2 hover:bg-secondary rounded-lg transition-colors"
@@ -100,11 +115,11 @@ const CharacterGallery = () => {
           <div className="flex items-center gap-2">
             {user ? (
               <>
-                <Badge variant="default" className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1">
-                  VIP
+                <Badge className="bg-primary/20 text-primary border-primary/30 px-3 py-1 font-semibold">
+                  PRO
                 </Badge>
-                <div className="flex items-center gap-2 bg-card px-3 py-1.5 rounded-full border">
-                  <Coins className="w-4 h-4 text-primary" />
+                <div className="flex items-center gap-1.5 bg-card/50 px-3 py-1.5 rounded-full border border-border/50">
+                  <Sparkles className="w-4 h-4 text-primary" />
                   <span className="font-semibold text-sm">{credits}</span>
                 </div>
               </>
@@ -125,115 +140,145 @@ const CharacterGallery = () => {
       />
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">
-        {/* Banner */}
-        <Card className="mb-6 overflow-hidden border-0 bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600">
-          <CardContent className="p-0">
-            <div className="relative">
-              <img 
-                src={featuredBanner} 
-                alt="Featured Characters" 
-                className="w-full h-32 object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end">
-                <div className="p-4 text-white w-full">
-                  <h2 className="text-lg font-bold mb-1">Chat with AI Characters</h2>
-                  <p className="text-xs opacity-90">Discover unique virtual characters, enjoy immersive conversations, or generate creative video content</p>
-                </div>
-              </div>
+      <main className="px-4 pb-6">
+        {/* Featured Banner */}
+        <div className="relative rounded-2xl overflow-hidden mb-6">
+          <img 
+            src={featuredBanner} 
+            alt="Featured" 
+            className="w-full h-36 object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/80 via-purple-800/60 to-transparent flex items-center">
+            <div className="p-5">
+              <h1 className="text-2xl font-bold text-white mb-1">Chat & Play with AI</h1>
+              <p className="text-sm text-white/80">Roleplay, talk, or make videos with virtual characters</p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        {/* Character Grid - Waterfall/Masonry style */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {characters.map((character) => (
-            <Card
-              key={character.id}
-              className="cursor-pointer hover:shadow-lg transition-all overflow-hidden"
+        {/* Character Grid - Masonry style */}
+        <div className="columns-2 gap-3 space-y-3">
+          {characters.map((character, index) => (
+            <div
+              key={`${character.id}-${index}`}
+              className="break-inside-avoid cursor-pointer group"
               onClick={() => setSelectedCharacter(character)}
             >
-              <CardContent className="p-0">
+              <div className="relative rounded-xl overflow-hidden">
+                {/* Character Image */}
                 <img
                   src={character.avatar}
                   alt={character.name}
-                  className="w-full aspect-square object-cover"
+                  className={`w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
+                    index % 3 === 0 ? 'aspect-[3/4]' : 'aspect-[4/5]'
+                  }`}
                 />
-                <div className="p-3">
-                  <h3 className="font-semibold mb-1">{character.name}</h3>
-                  <p className="text-xs text-muted-foreground mb-2 line-clamp-1">
+                
+                {/* Chat Count Badge */}
+                <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-full">
+                  <MessageCircle className="w-3 h-3 text-white" />
+                  <span className="text-xs text-white font-medium">{formatCount(character.conversations)}</span>
+                </div>
+
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                {/* Character Info Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-3">
+                  <h3 className="font-bold text-white text-base mb-0.5">{character.name}</h3>
+                  <p className="text-xs text-white/80 line-clamp-2 mb-2">
                     {character.description}
                   </p>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
-                    <MessageCircle className="w-3 h-3" />
-                    <span>{character.conversations.toLocaleString()}</span>
-                  </div>
                   <div className="flex flex-wrap gap-1">
                     {character.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
+                      <span 
+                        key={tag} 
+                        className="text-xs bg-white/20 backdrop-blur-sm text-white px-2 py-0.5 rounded-full"
+                      >
                         {tag}
-                      </Badge>
+                      </span>
                     ))}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       </main>
 
-      {/* Character Detail Dialog */}
-      <Dialog open={!!selectedCharacter} onOpenChange={() => setSelectedCharacter(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl">{selectedCharacter?.name}</DialogTitle>
-          </DialogHeader>
-          {selectedCharacter && (
-            <div className="space-y-4">
+      {/* Character Detail Modal - Full Screen Style */}
+      {selectedCharacter && (
+        <div className="fixed inset-0 z-50 bg-background">
+          {/* Header Image */}
+          <div className="relative h-[45vh]">
+            <img
+              src={selectedCharacter.avatar}
+              alt={selectedCharacter.name}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+            
+            {/* Close Button */}
+            <button
+              onClick={() => setSelectedCharacter(null)}
+              className="absolute top-4 right-4 p-2 bg-black/30 backdrop-blur-sm rounded-full hover:bg-black/50 transition-colors"
+            >
+              <X className="w-5 h-5 text-white" />
+            </button>
+
+            {/* Character Badge */}
+            <div className="absolute bottom-4 left-4 flex items-center gap-3">
               <img
                 src={selectedCharacter.avatar}
                 alt={selectedCharacter.name}
-                className="w-full h-64 object-cover rounded-lg"
+                className="w-16 h-16 rounded-full border-2 border-background object-cover"
               />
               <div>
-                <h4 className="font-semibold mb-2">About</h4>
-                <p className="text-sm text-muted-foreground">
-                  {selectedCharacter.fullDescription}
-                </p>
+                <h2 className="text-2xl font-bold text-white">{selectedCharacter.name}</h2>
+                <div className="flex gap-2 mt-1">
+                  {selectedCharacter.tags.map((tag) => (
+                    <span 
+                      key={tag} 
+                      className="text-xs bg-white/20 backdrop-blur-sm text-white px-2 py-0.5 rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <div>
-                <h4 className="font-semibold mb-2">Background</h4>
-                <p className="text-sm text-muted-foreground">
-                  {selectedCharacter.background}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                {selectedCharacter.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-              <Button
-                className="w-full"
-                size="lg"
-                onClick={() => {
-                  if (!user) {
-                    setSelectedCharacter(null);
-                    setShowLoginPrompt(true);
-                  } else {
-                    setSelectedCharacter(null);
-                    navigate(`/chat/${selectedCharacter.id}`);
-                  }
-                }}
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Start Chat
-              </Button>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
+          </div>
+
+          {/* Content */}
+          <div className="px-4 py-6 space-y-6 overflow-y-auto" style={{ height: 'calc(55vh - 80px)' }}>
+            <div>
+              <h3 className="font-bold text-lg mb-2">About</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {selectedCharacter.fullDescription}
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="font-bold text-lg mb-2">Background</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {selectedCharacter.background}
+              </p>
+            </div>
+          </div>
+
+          {/* Start Chat Button */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 bg-background border-t border-border">
+            <Button
+              className="w-full h-12 text-base font-semibold rounded-full"
+              size="lg"
+              onClick={handleStartChat}
+            >
+              <MessageCircle className="w-5 h-5 mr-2" />
+              Start Chat
+            </Button>
+          </div>
+        </div>
+      )}
 
       <LoginPrompt
         open={showLoginPrompt}
