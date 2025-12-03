@@ -198,76 +198,86 @@ const CharacterGallery = () => {
       {/* Character Detail Modal - Full Screen Style */}
       {selectedCharacter && (
         <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
-          {/* Header Image */}
-          <div className="relative">
-            <img
-              src={selectedCharacter.avatar}
-              alt={selectedCharacter.name}
-              className="w-full aspect-[3/4] object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-            
-            {/* Close Button */}
-            <button
-              onClick={() => {
-                setSelectedCharacter(null);
-                setShowBackground(false);
-              }}
-              className="absolute top-4 right-4 p-2 bg-black/30 backdrop-blur-sm rounded-full hover:bg-black/50 transition-colors"
-            >
-              <X className="w-5 h-5 text-white" />
-            </button>
+          {/* Fixed Header - Same as Home */}
+          <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm">
+            <div className="px-4 py-3 flex items-center justify-between">
+              <button
+                onClick={() => {
+                  setSelectedCharacter(null);
+                  setShowBackground(false);
+                }}
+                className="relative p-2 -ml-2 hover:bg-secondary rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
 
-            {/* Character Info - Overlapping position */}
-            <div className="absolute bottom-0 left-0 right-0 translate-y-1/2 px-4">
-              <div className="flex items-end gap-3">
-                <img
-                  src={selectedCharacter.avatar}
-                  alt={selectedCharacter.name}
-                  className="w-16 h-16 rounded-full border-4 border-background object-cover shadow-lg"
-                />
-                <div className="pb-1">
-                  <h2 className="text-xl font-bold">{selectedCharacter.name}</h2>
-                  <div className="flex gap-1.5 mt-1">
-                    {selectedCharacter.tags.map((tag) => (
-                      <span 
-                        key={tag} 
-                        className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+              <div className="flex items-center gap-2">
+                {user ? (
+                  <>
+                    <Badge className="bg-primary/20 text-primary border-primary/30 px-3 py-1 font-semibold">
+                      PRO
+                    </Badge>
+                    <div className="flex items-center gap-1.5 bg-card/50 px-3 py-1.5 rounded-full border border-border/50">
+                      <Sparkles className="w-4 h-4 text-primary" />
+                      <span className="font-semibold text-sm">{credits}</span>
+                    </div>
+                  </>
+                ) : (
+                  <Button onClick={() => navigate("/auth")} size="sm" variant="default">
+                    Login
+                  </Button>
+                )}
               </div>
+            </div>
+          </header>
+
+          {/* Character Image */}
+          <div className="px-4">
+            <div className="rounded-2xl overflow-hidden">
+              <img
+                src={selectedCharacter.avatar}
+                alt={selectedCharacter.name}
+                className="w-full aspect-[3/4] object-cover"
+              />
             </div>
           </div>
 
-          {/* Content - with padding top for overlapping avatar */}
-          <div className="px-4 pt-12 pb-24 space-y-5">
-            <div>
-              <h3 className="font-bold text-base mb-2">About</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+          {/* Content */}
+          <div className="px-4 pt-6 pb-28 space-y-4">
+            {/* Name */}
+            <h2 className="text-2xl font-bold text-center">{selectedCharacter.name}</h2>
+            
+            {/* Tags - Highlighted */}
+            <div className="flex flex-wrap justify-center gap-2">
+              {selectedCharacter.tags.map((tag) => (
+                <span 
+                  key={tag} 
+                  className="text-sm bg-primary/20 text-primary px-3 py-1 rounded-full font-medium border border-primary/30"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            {/* About - Full Description */}
+            <div className="pt-2">
+              <p className="text-muted-foreground text-sm leading-relaxed text-center">
                 {selectedCharacter.fullDescription}
               </p>
             </div>
             
-            <div>
-              <button
-                onClick={() => setShowBackground(!showBackground)}
-                className="flex items-center gap-2 font-bold text-base mb-2 w-full"
-              >
-                <span>Background</span>
-                {showBackground ? (
-                  <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                )}
-              </button>
-              {showBackground && (
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {selectedCharacter.background}
-                </p>
+            {/* Background - 3 lines with Read More */}
+            <div className="pt-2">
+              <p className={`text-muted-foreground text-sm leading-relaxed text-center ${!showBackground ? 'line-clamp-3' : ''}`}>
+                {selectedCharacter.background}
+              </p>
+              {selectedCharacter.background && selectedCharacter.background.length > 100 && (
+                <button
+                  onClick={() => setShowBackground(!showBackground)}
+                  className="text-primary text-sm font-medium mt-2 w-full text-center hover:underline"
+                >
+                  {showBackground ? 'Show Less' : 'Read More'}
+                </button>
               )}
             </div>
           </div>
