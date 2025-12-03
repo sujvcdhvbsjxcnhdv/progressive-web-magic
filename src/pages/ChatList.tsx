@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { MessageCircle, Trash2 } from "lucide-react";
+import { MessageCircle, Trash2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -63,13 +63,21 @@ const ChatList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-6">
-      <div className="container mx-auto px-4">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-1">Chats</h1>
-          <p className="text-sm text-muted-foreground">{chats.length} conversations</p>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      {/* Header with back button */}
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
+        <div className="container mx-auto px-4 py-3 flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="text-xl font-bold">Chats</h1>
+            <p className="text-xs text-muted-foreground">{chats.length} conversations</p>
+          </div>
         </div>
+      </header>
 
+      <div className="container mx-auto px-4 py-6">
         <div className="space-y-3">
           {chats.length === 0 ? (
             <Card>

@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Upload } from "lucide-react";
+import { Upload, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginPrompt from "@/components/LoginPrompt";
@@ -59,6 +60,7 @@ const templates: Template[] = [
 const categories = ["Trending", "Halloween", "From Creator", "AI Dance", "Couple Video", "Party"];
 
 const VideoGenerator = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -71,7 +73,7 @@ const VideoGenerator = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
-      toast.success("图片上传成功！");
+      toast.success("Image uploaded successfully!");
     }
   };
 
@@ -90,26 +92,34 @@ const VideoGenerator = () => {
       return;
     }
     const credits = quality === "standard" ? 10 : quality === "hd" ? 20 : 50;
-    toast.success(`开始生成视频，将消耗 ${credits} 积分`);
+    toast.success(`Starting video generation, will cost ${credits} credits`);
   };
 
   const filteredTemplates = templates.filter(t => t.category === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <div className="container mx-auto px-4 py-6">
-        <h1 className="text-2xl font-bold mb-6">AI 视频</h1>
+    <div className="min-h-screen bg-background">
+      {/* Header with back button */}
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
+        <div className="container mx-auto px-4 py-3 flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <h1 className="text-xl font-bold">AI Video</h1>
+        </div>
+      </header>
 
+      <div className="container mx-auto px-4 py-6">
         <Tabs defaultValue="template" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="template">模板</TabsTrigger>
-            <TabsTrigger value="custom">自定义</TabsTrigger>
+            <TabsTrigger value="template">Template</TabsTrigger>
+            <TabsTrigger value="custom">Custom</TabsTrigger>
           </TabsList>
 
           {/* Template Tab (Image to Video) */}
           <TabsContent value="template" className="space-y-6">
             <div>
-              <h2 className="text-lg font-semibold mb-4">选择模板</h2>
+              <h2 className="text-lg font-semibold mb-4">Select Template</h2>
               
               {/* Category Navigation */}
               <div className="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide">
@@ -153,14 +163,14 @@ const VideoGenerator = () => {
               <Card>
                 <CardContent className="p-4 space-y-4">
                   <div>
-                    <h3 className="text-sm font-medium mb-3">质量</h3>
+                    <h3 className="text-sm font-medium mb-3">Quality</h3>
                     <RadioGroup value={quality} onValueChange={handleQualityChange}>
                       <div className="flex items-center space-x-2 p-3 border rounded-lg mb-2">
                         <RadioGroupItem value="standard" id="standard" />
                         <Label htmlFor="standard" className="flex-1 cursor-pointer">
                           <div className="flex justify-between items-center">
-                            <span>标准</span>
-                            <span className="text-sm text-muted-foreground">10 积分</span>
+                            <span>Standard</span>
+                            <span className="text-sm text-muted-foreground">10 Credits</span>
                           </div>
                         </Label>
                       </div>
@@ -168,8 +178,8 @@ const VideoGenerator = () => {
                         <RadioGroupItem value="hd" id="hd" />
                         <Label htmlFor="hd" className="flex-1 cursor-pointer">
                           <div className="flex justify-between items-center">
-                            <span>高清</span>
-                            <span className="text-sm text-muted-foreground">20 积分</span>
+                            <span>HD</span>
+                            <span className="text-sm text-muted-foreground">20 Credits</span>
                           </div>
                         </Label>
                       </div>
@@ -177,8 +187,8 @@ const VideoGenerator = () => {
                         <RadioGroupItem value="ultra" id="ultra" />
                         <Label htmlFor="ultra" className="flex-1 cursor-pointer">
                           <div className="flex justify-between items-center">
-                            <span>超清</span>
-                            <span className="text-sm text-muted-foreground">50 积分</span>
+                            <span>4K Ultra</span>
+                            <span className="text-sm text-muted-foreground">50 Credits</span>
                           </div>
                         </Label>
                       </div>
@@ -190,7 +200,7 @@ const VideoGenerator = () => {
                     size="lg"
                     onClick={handleGenerate}
                   >
-                    生成视频
+                    Generate Video
                   </Button>
                 </CardContent>
               </Card>
@@ -202,9 +212,9 @@ const VideoGenerator = () => {
             <Card>
               <CardContent className="p-4 space-y-4">
                 <div>
-                  <h3 className="text-sm font-medium mb-3">视频描述</h3>
+                  <h3 className="text-sm font-medium mb-3">Video Description</h3>
                   <Textarea
-                    placeholder="描述你想要的视频场景..."
+                    placeholder="Describe the video scene you want..."
                     className="min-h-[120px] resize-none"
                     value={textPrompt}
                     onChange={(e) => setTextPrompt(e.target.value)}
@@ -216,9 +226,9 @@ const VideoGenerator = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-medium mb-2">参考图片（可选）</h3>
+                  <h3 className="text-sm font-medium mb-2">Reference Image (Optional)</h3>
                   <p className="text-xs text-muted-foreground mb-3">
-                    上传参考图可提升效果(可选)
+                    Upload a reference image to improve results
                   </p>
                   <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
                     <input
@@ -231,21 +241,21 @@ const VideoGenerator = () => {
                     <label htmlFor="text-image-upload" className="cursor-pointer">
                       <Upload className="w-12 h-12 mx-auto mb-2 text-muted-foreground" />
                       <p className="text-sm text-muted-foreground">
-                        {selectedFile ? selectedFile.name : "点击上传参考图"}
+                        {selectedFile ? selectedFile.name : "Click to upload reference image"}
                       </p>
                     </label>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-medium mb-3">质量</h3>
+                  <h3 className="text-sm font-medium mb-3">Quality</h3>
                   <RadioGroup value={quality} onValueChange={handleQualityChange}>
                     <div className="flex items-center space-x-2 p-3 border rounded-lg mb-2">
                       <RadioGroupItem value="standard" id="text-standard" />
                       <Label htmlFor="text-standard" className="flex-1 cursor-pointer">
                         <div className="flex justify-between items-center">
-                          <span>标准</span>
-                          <span className="text-sm text-muted-foreground">10 积分</span>
+                          <span>Standard</span>
+                          <span className="text-sm text-muted-foreground">10 Credits</span>
                         </div>
                       </Label>
                     </div>
@@ -253,8 +263,8 @@ const VideoGenerator = () => {
                       <RadioGroupItem value="hd" id="text-hd" />
                       <Label htmlFor="text-hd" className="flex-1 cursor-pointer">
                         <div className="flex justify-between items-center">
-                          <span>高清</span>
-                          <span className="text-sm text-muted-foreground">20 积分</span>
+                          <span>HD</span>
+                          <span className="text-sm text-muted-foreground">20 Credits</span>
                         </div>
                       </Label>
                     </div>
@@ -262,8 +272,8 @@ const VideoGenerator = () => {
                       <RadioGroupItem value="ultra" id="text-ultra" />
                       <Label htmlFor="text-ultra" className="flex-1 cursor-pointer">
                         <div className="flex justify-between items-center">
-                          <span>超清</span>
-                          <span className="text-sm text-muted-foreground">50 积分</span>
+                          <span>4K Ultra</span>
+                          <span className="text-sm text-muted-foreground">50 Credits</span>
                         </div>
                       </Label>
                     </div>
@@ -276,7 +286,7 @@ const VideoGenerator = () => {
                   onClick={handleGenerate}
                   disabled={!textPrompt.trim()}
                 >
-                  生成视频
+                  Generate Video
                 </Button>
               </CardContent>
             </Card>

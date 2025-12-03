@@ -137,8 +137,8 @@ const CharacterGallery = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end">
                 <div className="p-4 text-white w-full">
-                  <h2 className="text-lg font-bold mb-1">与AI角色互动</h2>
-                  <p className="text-xs opacity-90">发现独特的虚拟角色，享受沉浸式对话体验，或生成创意视频内容</p>
+                  <h2 className="text-lg font-bold mb-1">Chat with AI Characters</h2>
+                  <p className="text-xs opacity-90">Discover unique virtual characters, enjoy immersive conversations, or generate creative video content</p>
                 </div>
               </div>
             </div>

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Play, Download, Trash2, Coins, ChevronRight, Globe } from "lucide-react";
+import { Play, Download, Coins, ChevronRight, Globe, ArrowLeft, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginPrompt from "@/components/LoginPrompt";
@@ -79,11 +79,6 @@ const Mine = () => {
     navigate("/");
   };
 
-  const handleDelete = (taskId: string) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
-    toast.success("Task deleted");
-  };
-
   const handleDownload = (task: VideoTask) => {
     if (task.videoUrl) {
       toast.success("Downloading video...");
@@ -93,19 +88,27 @@ const Mine = () => {
   const getStatusBadge = (status: VideoTask["status"]) => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-green-500 text-white">✅ Completed</Badge>;
+        return <Badge className="bg-green-500 text-white">Completed</Badge>;
       case "processing":
-        return <Badge className="bg-blue-500 text-white">🔄 Processing</Badge>;
+        return <Badge className="bg-blue-500 text-white">Processing</Badge>;
       case "queued":
-        return <Badge variant="secondary">⏳ Queued</Badge>;
+        return <Badge variant="secondary">Queued</Badge>;
     }
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <div className="container mx-auto px-4 py-6 max-w-2xl">
-        <h1 className="text-2xl font-bold mb-6">Mine</h1>
+    <div className="min-h-screen bg-background">
+      {/* Header with back button */}
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
+        <div className="container mx-auto px-4 py-3 flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <h1 className="text-xl font-bold">Profile</h1>
+        </div>
+      </header>
 
+      <div className="container mx-auto px-4 py-6 max-w-2xl">
         {/* User Profile Card */}
         <Card className="mb-6">
           <CardContent className="p-6">
@@ -116,7 +119,7 @@ const Mine = () => {
               </Avatar>
               <div className="flex-1">
                 <h3 className="font-bold text-lg">{profile?.username || user?.email?.split("@")[0] || "User"}</h3>
-                <p className="text-sm text-muted-foreground">{isVip ? "VIP会员" : "免费用户"}</p>
+                <p className="text-sm text-muted-foreground">{isVip ? "VIP Member" : "Free User"}</p>
               </div>
             </div>
             
@@ -129,7 +132,7 @@ const Mine = () => {
                 size="sm"
                 onClick={() => navigate("/pricing")}
               >
-                充值
+                Recharge
               </Button>
             </div>
           </CardContent>
@@ -142,14 +145,14 @@ const Mine = () => {
               <h2 className="text-xl font-bold">My Videos</h2>
               {tasks.length > 0 && (
                 <Button variant="ghost" size="sm">
-                  更多 <ChevronRight className="w-4 h-4 ml-1" />
+                  More <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               )}
             </div>
 
             {tasks.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                还没有生成视频
+                No videos generated yet
               </div>
             ) : (
               <div className="space-y-3">
@@ -232,22 +235,22 @@ const Mine = () => {
               </div>
 
               <button className="w-full text-left py-2 hover:text-primary transition-colors">
-                服务条款
+                Terms of Service
               </button>
 
               <button className="w-full text-left py-2 hover:text-primary transition-colors">
-                隐私政策
+                Privacy Policy
               </button>
 
               <button className="w-full text-left py-2 hover:text-primary transition-colors">
-                清除缓存
+                Clear Cache
               </button>
 
               <button 
                 className="w-full text-left py-2 text-destructive hover:text-destructive/80 transition-colors flex items-center gap-2"
                 onClick={handleLogout}
               >
-                <span>🚪</span> Logout
+                <LogOut className="w-4 h-4" /> Logout
               </button>
             </div>
           </CardContent>
