@@ -33,6 +33,7 @@ const Pricing = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("premium");
   const [membershipTier, setMembershipTier] = useState<MembershipTier>(user ? 'none' : 'none');
+  const [isVideoMember, setIsVideoMember] = useState(false);
   
   const membershipBadge = getMembershipBadge(membershipTier);
 
@@ -297,82 +298,164 @@ const Pricing = () => {
               </div>
             </div>
 
-            {/* Weekly Subscription */}
-            <div className="bg-secondary/30 rounded-2xl p-4 border border-border relative">
-              <Badge className="absolute -top-2 left-4 bg-red-500 text-white text-xs">
-                🔥 Limited Offer
-              </Badge>
-              <div className="absolute -top-2 right-4 bg-gradient-to-br from-purple-500 to-pink-500 text-white text-xs px-2 py-1 rounded-lg font-bold transform rotate-12">
-                50% OFF
-              </div>
-              <div className="pt-2">
-                <h4 className="font-bold text-lg">Weekly Subscription</h4>
-                <p className="text-sm text-muted-foreground">500 Credits per week</p>
-                <div className="mt-3">
-                  <span className="text-2xl font-bold">$3.99</span>
-                  <span className="text-muted-foreground text-sm">/week</span>
-                  <span className="text-muted-foreground text-sm line-through ml-2">$7.99</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Credit Packs */}
-            <div className="space-y-3">
-              <h4 className="font-semibold text-sm text-muted-foreground">Credit Packs (One-time)</h4>
-              <div className="space-y-3">
-                {[
-                  { name: "Small", credits: 300, price: "$3.99", originalPrice: null, save: null },
-                  { name: "Medium", credits: 700, price: "$8.99", originalPrice: null, save: null },
-                  { name: "Large", credits: 1500, price: "$17.99", originalPrice: "$35.99", save: "50%", popular: true },
-                  { name: "Best Value", credits: 3500, price: "$34.99", originalPrice: "$174.99", save: "80%", best: true }
-                ].map((pack) => (
-                  <div
-                    key={pack.credits}
-                    className={`flex items-center justify-between p-3 rounded-xl border ${
-                      pack.best ? "border-amber-500/50 bg-amber-500/10" : 
-                      pack.popular ? "border-primary/50 bg-primary/10" : "border-border bg-secondary/20"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      {(pack.popular || pack.best) && (
-                        <Badge className={`text-xs ${pack.best ? "bg-amber-500 text-black" : "bg-red-500 text-white"}`}>
-                          {pack.best ? "Best Value" : "🔥 Popular"}
-                        </Badge>
-                      )}
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <Zap className="w-4 h-4 text-primary" />
-                          <span className="font-bold">{pack.credits}</span>
-                          <span className="text-sm text-muted-foreground">Credits</span>
-                        </div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="font-semibold">{pack.price}</span>
-                          {pack.originalPrice && (
-                            <span className="text-xs text-muted-foreground line-through">{pack.originalPrice}</span>
+            {/* Show different order based on video membership */}
+            {isVideoMember ? (
+              <>
+                {/* Credit Packs First for Video Members */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-sm text-muted-foreground">Credit Packs (One-time)</h4>
+                  <div className="space-y-3">
+                    {[
+                      { name: "Large", credits: 1500, price: "$17.99", originalPrice: "$35.99", save: "50%", popular: true },
+                      { name: "Small", credits: 300, price: "$3.99", originalPrice: null, save: null },
+                      { name: "Medium", credits: 700, price: "$8.99", originalPrice: null, save: null },
+                      { name: "Best Value", credits: 3500, price: "$34.99", originalPrice: "$174.99", save: "80%", best: true }
+                    ].map((pack) => (
+                      <div
+                        key={pack.credits}
+                        className={`flex items-center justify-between p-3 rounded-xl border ${
+                          pack.best ? "border-amber-500/50 bg-amber-500/10" : 
+                          pack.popular ? "border-primary/50 bg-primary/10" : "border-border bg-secondary/20"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {(pack.popular || pack.best) && (
+                            <Badge className={`text-xs ${pack.best ? "bg-amber-500 text-black" : "bg-red-500 text-white"}`}>
+                              {pack.best ? "Best Value" : "🔥 Popular"}
+                            </Badge>
                           )}
-                          {pack.save && (
-                            <span className="text-xs text-green-500 font-medium">Save {pack.save}</span>
-                          )}
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <Zap className="w-4 h-4 text-primary" />
+                              <span className="font-bold">{pack.credits}</span>
+                              <span className="text-sm text-muted-foreground">Credits</span>
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="font-semibold">{pack.price}</span>
+                              {pack.originalPrice && (
+                                <span className="text-xs text-muted-foreground line-through">{pack.originalPrice}</span>
+                              )}
+                              {pack.save && (
+                                <span className="text-xs text-green-500 font-medium">Save {pack.save}</span>
+                              )}
+                            </div>
+                          </div>
                         </div>
+                        <Button
+                          onClick={() => handlePurchase(`${pack.credits} Credits`)}
+                          variant="outline"
+                          size="sm"
+                          className="rounded-full bg-foreground text-background hover:bg-foreground/90"
+                        >
+                          Buy Now
+                        </Button>
                       </div>
-                    </div>
-                    <Button
-                      onClick={() => handlePurchase(`${pack.credits} Credits`)}
-                      variant="outline"
-                      size="sm"
-                      className="rounded-full"
-                    >
-                      Buy Now
-                    </Button>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
+
+                {/* Weekly Subscription */}
+                <div className="bg-secondary/30 rounded-2xl p-4 border border-border relative">
+                  <Badge className="absolute -top-2 left-4 bg-red-500 text-white text-xs">
+                    🔥 Limited Offer
+                  </Badge>
+                  <div className="absolute -top-2 right-4 bg-gradient-to-br from-purple-500 to-pink-500 text-white text-xs px-2 py-1 rounded-lg font-bold transform rotate-12">
+                    50% OFF
+                  </div>
+                  <div className="pt-2">
+                    <h4 className="font-bold text-lg">Weekly Subscription</h4>
+                    <p className="text-sm text-muted-foreground">500 Credits per week</p>
+                    <div className="mt-3">
+                      <span className="text-2xl font-bold">$3.99</span>
+                      <span className="text-muted-foreground text-sm">/week</span>
+                      <span className="text-muted-foreground text-sm line-through ml-2">$7.99</span>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Weekly Subscription First for Non-Video Members */}
+                <div className="bg-secondary/30 rounded-2xl p-4 border border-border relative">
+                  <Badge className="absolute -top-2 left-4 bg-red-500 text-white text-xs">
+                    🔥 Limited Offer
+                  </Badge>
+                  <div className="absolute -top-2 right-4 bg-gradient-to-br from-purple-500 to-pink-500 text-white text-xs px-2 py-1 rounded-lg font-bold transform rotate-12">
+                    50% OFF
+                  </div>
+                  <div className="pt-2">
+                    <h4 className="font-bold text-lg">Weekly Subscription</h4>
+                    <p className="text-sm text-muted-foreground">500 Credits per week</p>
+                    <div className="mt-3">
+                      <span className="text-2xl font-bold">$3.99</span>
+                      <span className="text-muted-foreground text-sm">/week</span>
+                      <span className="text-muted-foreground text-sm line-through ml-2">$7.99</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Credit Packs */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-sm text-muted-foreground">Credit Packs (One-time)</h4>
+                  <div className="space-y-3">
+                    {[
+                      { name: "Large", credits: 1500, price: "$17.99", originalPrice: "$35.99", save: "50%", popular: true },
+                      { name: "Small", credits: 300, price: "$3.99", originalPrice: null, save: null },
+                      { name: "Medium", credits: 700, price: "$8.99", originalPrice: null, save: null },
+                      { name: "Best Value", credits: 3500, price: "$34.99", originalPrice: "$174.99", save: "80%", best: true }
+                    ].map((pack) => (
+                      <div
+                        key={pack.credits}
+                        className={`flex items-center justify-between p-3 rounded-xl border ${
+                          pack.best ? "border-amber-500/50 bg-amber-500/10" : 
+                          pack.popular ? "border-primary/50 bg-primary/10" : "border-border bg-secondary/20"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {(pack.popular || pack.best) && (
+                            <Badge className={`text-xs ${pack.best ? "bg-amber-500 text-black" : "bg-red-500 text-white"}`}>
+                              {pack.best ? "Best Value" : "🔥 Popular"}
+                            </Badge>
+                          )}
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <Zap className="w-4 h-4 text-primary" />
+                              <span className="font-bold">{pack.credits}</span>
+                              <span className="text-sm text-muted-foreground">Credits</span>
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="font-semibold">{pack.price}</span>
+                              {pack.originalPrice && (
+                                <span className="text-xs text-muted-foreground line-through">{pack.originalPrice}</span>
+                              )}
+                              {pack.save && (
+                                <span className="text-xs text-green-500 font-medium">Save {pack.save}</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => handlePurchase(`${pack.credits} Credits`)}
+                          variant="outline"
+                          size="sm"
+                          className="rounded-full bg-foreground text-background hover:bg-foreground/90"
+                        >
+                          Buy Now
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Subscribe Button */}
             <Button 
               className="w-full rounded-full h-12 font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-              onClick={() => handlePurchase("Weekly Subscription")}
+              onClick={() => {
+                handlePurchase("Weekly Subscription");
+                setIsVideoMember(true);
+              }}
             >
               Subscribe
             </Button>
