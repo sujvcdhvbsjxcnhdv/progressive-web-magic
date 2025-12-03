@@ -10,12 +10,32 @@ import LoginPrompt from "@/components/LoginPrompt";
 import AppSidebar from "@/components/AppSidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+// Membership tier types: 'none' | 'basic' | 'plus' | 'pro'
+type MembershipTier = 'none' | 'basic' | 'plus' | 'pro';
+
+const getMembershipBadge = (tier: MembershipTier) => {
+  switch (tier) {
+    case 'basic':
+      return { text: 'PRO', className: 'bg-purple-600 text-white' };
+    case 'plus':
+      return { text: 'PRO', className: 'bg-pink-500 text-white' };
+    case 'pro':
+      return { text: 'PRO', className: 'bg-amber-500 text-black' };
+    default:
+      return null;
+  }
+};
+
 const Pricing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("basic");
+  const [activeTab, setActiveTab] = useState("premium");
+  
+  // Mock membership tier - in real app, this would come from user profile/subscription
+  const membershipTier: MembershipTier = user ? 'basic' : 'none';
+  const membershipBadge = getMembershipBadge(membershipTier);
 
   const handlePurchase = (plan: string) => {
     if (!user) {
@@ -75,7 +95,7 @@ const Pricing = () => {
         "Priority Access"
       ],
       cardStyle: "bg-gradient-to-br from-[#1a1a2e] to-[#2d1b4e] border-purple-500/50",
-      iconBg: "bg-gradient-to-br from-purple-500 to-pink-600"
+      iconBg: "bg-gradient-to-br from-pink-500 to-pink-600"
     },
     {
       id: "ultimate",
@@ -97,7 +117,7 @@ const Pricing = () => {
     }
   ];
 
-  const currentPlan = chatPlans.find(p => p.id === activeTab) || chatPlans[1];
+  const currentPlan = chatPlans.find(p => p.id === activeTab) || chatPlans[2];
 
   return (
     <div className="min-h-screen bg-background">
@@ -108,22 +128,36 @@ const Pricing = () => {
             <Menu className="w-5 h-5" />
           </Button>
           
-          <h1 className="text-lg font-bold">Ai Video</h1>
+          <div className="border border-primary rounded-lg px-4 py-1.5">
+            <span className="text-sm font-bold">Ai Video</span>
+          </div>
           
           <div className="flex items-center gap-2">
-            <Badge className="bg-primary text-primary-foreground text-xs px-2 py-0.5">
-              PRO
-            </Badge>
+            {membershipBadge && (
+              <Badge className={`text-xs px-2 py-0.5 ${membershipBadge.className}`}>
+                {membershipBadge.text}
+              </Badge>
+            )}
             <div className="flex items-center gap-1 bg-secondary rounded-full px-2 py-1">
               <Zap className="w-3 h-3 text-primary" />
               <span className="text-xs font-medium">151</span>
             </div>
-            <Avatar className="w-7 h-7">
-              <AvatarImage src={user?.user_metadata?.avatar_url} />
-              <AvatarFallback className="text-xs bg-primary/20">
-                {user?.email?.charAt(0).toUpperCase() || "U"}
-              </AvatarFallback>
-            </Avatar>
+            {user ? (
+              <Avatar className="w-7 h-7">
+                <AvatarImage src={user?.user_metadata?.avatar_url} />
+                <AvatarFallback className="text-xs bg-primary/20">
+                  {user?.email?.charAt(0).toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+            ) : (
+              <Button 
+                size="sm" 
+                className="h-7 text-xs px-3"
+                onClick={() => setShowLoginPrompt(true)}
+              >
+                Login
+              </Button>
+            )}
           </div>
         </div>
       </header>
