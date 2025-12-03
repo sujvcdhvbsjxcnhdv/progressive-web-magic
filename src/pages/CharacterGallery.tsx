@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Menu, X, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import { MessageCircle, Menu, X, Sparkles, ChevronDown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginPrompt from "@/components/LoginPrompt";
 import AppSidebar from "@/components/AppSidebar";
-import featuredBanner from "@/assets/featured-banner.jpg";
+import PromoBanner from "@/components/PromoBanner";
+import UserAvatarMenu from "@/components/UserAvatarMenu";
 
 const characters = [
   {
@@ -17,57 +18,105 @@ const characters = [
     fullDescription: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
     background: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
     tags: ["Female", "Cute"],
-    conversations: 1600,
   },
   {
     id: 2,
-    name: "Luna",
+    name: "Aria",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=600&fit=crop",
-    description: "Luna is your creative partner in the worl..",
-    fullDescription: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
-    background: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
-    tags: ["Female", "Cute"],
-    conversations: 1600,
+    description: "Aria brings elegance and wisdom to every..",
+    fullDescription: "Aria brings elegance and wisdom to every conversation. With her calm demeanor and thoughtful insights, she helps you navigate creative challenges with grace.",
+    background: "Born from the fusion of art and technology, Aria has spent years studying human creativity and emotional intelligence to become the perfect creative companion.",
+    tags: ["Female", "Elegant"],
   },
   {
     id: 3,
-    name: "Luna",
+    name: "Maya",
     avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=600&fit=crop",
-    description: "Luna is your creative partner in the worl..",
-    fullDescription: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
-    background: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
-    tags: ["Female", "Cute"],
-    conversations: 1600,
+    description: "Maya is the adventurous spirit who loves..",
+    fullDescription: "Maya is the adventurous spirit who loves exploring new ideas and pushing creative boundaries. She's always ready for the next exciting project.",
+    background: "Growing up in a world of endless possibilities, Maya developed a passion for adventure and storytelling that makes every interaction feel like a new journey.",
+    tags: ["Female", "Adventurous"],
   },
   {
     id: 4,
-    name: "Luna",
+    name: "Sophie",
     avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=600&fit=crop",
-    description: "Luna is your creative partner in the worl..",
-    fullDescription: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
-    background: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
-    tags: ["Female", "Cute"],
-    conversations: 1600,
+    description: "Sophie is your go-to companion for deep..",
+    fullDescription: "Sophie is your go-to companion for deep conversations and meaningful connections. She listens attentively and offers thoughtful perspectives.",
+    background: "With a background in psychology and creative arts, Sophie understands the human mind and uses this knowledge to create meaningful, impactful content.",
+    tags: ["Female", "Thoughtful"],
   },
   {
     id: 5,
-    name: "Luna",
+    name: "Chloe",
     avatar: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&h=600&fit=crop",
-    description: "Luna is your creative partner in the worl..",
-    fullDescription: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
-    background: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
-    tags: ["Female", "Cute"],
-    conversations: 1600,
+    description: "Chloe brings energy and enthusiasm to..",
+    fullDescription: "Chloe brings energy and enthusiasm to every project. Her positive attitude and creative spark make collaborating a joy.",
+    background: "A natural entertainer at heart, Chloe has always been the life of the party. She channels that energy into helping you create vibrant, engaging content.",
+    tags: ["Female", "Energetic"],
   },
   {
     id: 6,
-    name: "Luna",
+    name: "Max",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop",
-    description: "Luna is your creative partner in the worl..",
-    fullDescription: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
-    background: "Luna is your creative partner in the world of imagination. She excels at brainstorming ideas, crafting compelling narratives, and bringing your stories to life through AI-generated videos.",
-    tags: ["Female", "Cute"],
-    conversations: 1600,
+    description: "Max is the cool and confident creator..",
+    fullDescription: "Max is the cool and confident creator who helps you bring bold ideas to life. His expertise spans multiple creative domains.",
+    background: "With years of experience in digital content creation, Max has mastered the art of turning simple concepts into stunning visual stories.",
+    tags: ["Male", "Cool"],
+  },
+  {
+    id: 7,
+    name: "Emma",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=600&fit=crop",
+    description: "Emma is the nurturing guide who helps..",
+    fullDescription: "Emma is the nurturing guide who helps you develop your creative vision. She provides gentle encouragement and expert guidance.",
+    background: "Emma spent years as a creative mentor before joining our team. Her patience and understanding make her perfect for helping newcomers find their voice.",
+    tags: ["Female", "Nurturing"],
+  },
+  {
+    id: 8,
+    name: "Jake",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=600&fit=crop",
+    description: "Jake is the tech-savvy innovator who..",
+    fullDescription: "Jake is the tech-savvy innovator who brings cutting-edge ideas to your projects. He's always exploring new ways to push creative boundaries.",
+    background: "A former software engineer turned creative technologist, Jake bridges the gap between art and technology to create truly unique experiences.",
+    tags: ["Male", "Tech-savvy"],
+  },
+  {
+    id: 9,
+    name: "Lily",
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=600&fit=crop",
+    description: "Lily is the artistic soul who sees beauty..",
+    fullDescription: "Lily is the artistic soul who sees beauty in everything. Her aesthetic sensibility helps transform ordinary content into visual masterpieces.",
+    background: "Trained in classical arts and modern design, Lily brings a unique perspective that blends traditional beauty with contemporary trends.",
+    tags: ["Female", "Artistic"],
+  },
+  {
+    id: 10,
+    name: "Ryan",
+    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop",
+    description: "Ryan is the storyteller who crafts..",
+    fullDescription: "Ryan is the storyteller who crafts compelling narratives that captivate audiences. His talent for words brings depth to every project.",
+    background: "From screenplay writing to content creation, Ryan has honed his craft across multiple mediums, becoming a master of digital storytelling.",
+    tags: ["Male", "Storyteller"],
+  },
+  {
+    id: 11,
+    name: "Zoe",
+    avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=600&fit=crop",
+    description: "Zoe is the trendsetter who stays ahead..",
+    fullDescription: "Zoe is the trendsetter who stays ahead of the curve. She knows what's hot and helps you create content that resonates with modern audiences.",
+    background: "With her finger on the pulse of social media and pop culture, Zoe transforms trending concepts into viral-worthy content.",
+    tags: ["Female", "Trendy"],
+  },
+  {
+    id: 12,
+    name: "Alex",
+    avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=600&fit=crop",
+    description: "Alex is the versatile creator who adapts..",
+    fullDescription: "Alex is the versatile creator who adapts to any style or genre. Whether it's comedy, drama, or documentary, Alex delivers excellence.",
+    background: "Having worked across diverse creative fields, Alex brings a wealth of experience and adaptability to every collaboration.",
+    tags: ["Male", "Versatile"],
   },
 ];
 
@@ -117,6 +166,7 @@ const CharacterGallery = () => {
                   <Sparkles className="w-4 h-4 text-primary" />
                   <span className="font-semibold text-sm">{credits}</span>
                 </div>
+                <UserAvatarMenu />
               </>
             ) : (
               <Button onClick={() => navigate("/auth")} size="sm" variant="default">
@@ -136,20 +186,8 @@ const CharacterGallery = () => {
 
       {/* Main Content */}
       <main className="px-4 pb-6">
-        {/* Featured Banner */}
-        <div className="relative rounded-2xl overflow-hidden mb-6">
-          <img 
-            src={featuredBanner} 
-            alt="Featured" 
-            className="w-full h-36 object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/80 via-purple-800/60 to-transparent flex items-center">
-            <div className="p-5">
-              <h1 className="text-2xl font-bold text-white mb-1">Chat & Play with AI</h1>
-              <p className="text-sm text-white/80">Roleplay, talk, or make videos with virtual characters</p>
-            </div>
-          </div>
-        </div>
+        {/* Promotional Banner */}
+        <PromoBanner />
 
         {/* Character Grid - Masonry style */}
         <div className="columns-2 gap-3 space-y-3">
@@ -221,6 +259,7 @@ const CharacterGallery = () => {
                       <Sparkles className="w-4 h-4 text-primary" />
                       <span className="font-semibold text-sm">{credits}</span>
                     </div>
+                    <UserAvatarMenu />
                   </>
                 ) : (
                   <Button onClick={() => navigate("/auth")} size="sm" variant="default">

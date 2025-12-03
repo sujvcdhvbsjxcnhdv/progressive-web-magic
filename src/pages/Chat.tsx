@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Send, Home } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginPrompt from "@/components/LoginPrompt";
@@ -110,18 +110,23 @@ const Chat = () => {
         backgroundPosition: "center",
       }}
     >
-      <div className="p-4 bg-background/90 backdrop-blur-sm border-b flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/chat")}>
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
+      <div className="p-4 bg-background/90 backdrop-blur-sm border-b flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <img
-            src={character?.avatar}
-            alt={character?.name}
-            className="w-10 h-10 rounded-full object-cover border-2 border-primary"
-          />
-          <h1 className="text-lg font-bold">{character?.name}</h1>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/chat")}>
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div className="flex items-center gap-3">
+            <img
+              src={character?.avatar}
+              alt={character?.name}
+              className="w-10 h-10 rounded-full object-cover border-2 border-primary"
+            />
+            <h1 className="text-lg font-bold">{character?.name}</h1>
+          </div>
         </div>
+        <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+          <Home className="w-5 h-5" />
+        </Button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
