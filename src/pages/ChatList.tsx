@@ -1,11 +1,27 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { MessageCircle, Trash2, ArrowLeft } from "lucide-react";
+import { MessageCircle, Trash2, ArrowLeft, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginPrompt from "@/components/LoginPrompt";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ChatRecord {
   id: string;
@@ -40,6 +56,8 @@ const ChatList = () => {
   const { user } = useAuth();
   const [chats, setChats] = useState<ChatRecord[]>(mockChats);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [chatToDelete, setChatToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -47,9 +65,18 @@ const ChatList = () => {
     }
   }, [user]);
 
-  const handleDelete = (chatId: string) => {
-    setChats(chats.filter(chat => chat.id !== chatId));
-    toast.success("Chat deleted");
+  const handleDeleteClick = (chatId: string) => {
+    setChatToDelete(chatId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (chatToDelete) {
+      setChats(chats.filter(chat => chat.id !== chatToDelete));
+      toast.success("Chat deleted");
+    }
+    setDeleteConfirmOpen(false);
+    setChatToDelete(null);
   };
 
   const formatTime = (date: Date) => {
@@ -114,16 +141,29 @@ const ChatList = () => {
                         {chat.lastMessage}
                       </p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(chat.id);
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClick(chat.id);
+                          }}
+                          className="text-destructive cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </CardContent>
               </Card>
@@ -141,6 +181,23 @@ const ChatList = () => {
           }}
           message="Please login to view your chat history."
         />
+
+        <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Chat</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this conversation? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
