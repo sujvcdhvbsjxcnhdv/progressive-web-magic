@@ -109,13 +109,6 @@ const Mine = () => {
             </div>
           </div>
         );
-      case "queued":
-        return (
-          <div className="absolute bottom-2 left-2 flex items-center gap-1 text-[10px] text-orange-400">
-            <span>🔥</span>
-            <span>Queued · {task.estimatedTime}</span>
-          </div>
-        );
       case "failed":
         return (
           <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center">
@@ -123,6 +116,8 @@ const Mine = () => {
             <span className="text-white text-xs">Retry</span>
           </div>
         );
+      default:
+        return null;
     }
   };
 
@@ -236,13 +231,18 @@ const Mine = () => {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-bold text-lg">My Videos</h2>
-            <Button variant="ghost" size="sm" className="text-muted-foreground">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-muted-foreground"
+              onClick={() => navigate("/my-videos")}
+            >
               More <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            {tasks.map((task) => (
+            {tasks.slice(0, 4).map((task) => (
               <div key={task.id} className="relative">
                 <div className="aspect-[4/5] rounded-xl overflow-hidden relative">
                   <img
