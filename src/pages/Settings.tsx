@@ -305,14 +305,6 @@ const Settings = () => {
                     <span>{mockVideoSubscription.billingRenewal}</span>
                   </div>
                 </div>
-                <div className="flex gap-3 pt-2">
-                  <Button variant="secondary" className="flex-1" size="sm">
-                    Manage Payment
-                  </Button>
-                  <Button variant="outline" className="flex-1" size="sm">
-                    View Invoices
-                  </Button>
-                </div>
               </div>
             </div>
           ) : (

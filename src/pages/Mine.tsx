@@ -2,13 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Play, Download, Sparkles, ChevronRight, Settings, RotateCw } from "lucide-react";
-import { toast } from "sonner";
+import { Play, Sparkles, ChevronRight, Settings, RotateCw, Menu } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginPrompt from "@/components/LoginPrompt";
+import AppSidebar from "@/components/AppSidebar";
 
 interface VideoTask {
   id: string;
@@ -65,6 +64,7 @@ const Mine = () => {
   const { user, profile, signOut } = useAuth();
   const [tasks] = useState<VideoTask[]>(mockTasks);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   
   // Demo states - toggle to show different UI states
   const [hasVideoCredits] = useState(true); // Toggle to show no-credits state
@@ -122,20 +122,28 @@ const Mine = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <h1 className="text-xl font-bold">Me</h1>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => navigate("/settings")}
-          >
-            <Settings className="w-5 h-5" />
-          </Button>
-        </div>
-      </header>
+    <>
+      <AppSidebar open={sidebarOpen} onOpenChange={setSidebarOpen} />
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg">
+          <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" className="relative" onClick={() => setSidebarOpen(true)}>
+                <Menu className="w-5 h-5" />
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+              </Button>
+              <h1 className="text-xl font-bold">Me</h1>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => navigate("/settings")}
+            >
+              <Settings className="w-5 h-5" />
+            </Button>
+          </div>
+        </header>
 
       <div className="container mx-auto px-4 py-4 max-w-lg">
         {/* User Profile Section */}
@@ -265,17 +273,18 @@ const Mine = () => {
         </div>
       </div>
 
-      <LoginPrompt
-        open={showLoginPrompt}
-        onOpenChange={(open) => {
-          setShowLoginPrompt(open);
-          if (!open && !user) {
-            navigate("/");
-          }
-        }}
-        message="Please login to access your profile."
-      />
-    </div>
+        <LoginPrompt
+          open={showLoginPrompt}
+          onOpenChange={(open) => {
+            setShowLoginPrompt(open);
+            if (!open && !user) {
+              navigate("/");
+            }
+          }}
+          message="Please login to access your profile."
+        />
+      </div>
+    </>
   );
 };
 
