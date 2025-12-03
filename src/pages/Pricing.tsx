@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,12 +28,27 @@ const getMembershipBadge = (tier: MembershipTier) => {
 
 const Pricing = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("premium");
   const [membershipTier, setMembershipTier] = useState<MembershipTier>(user ? 'none' : 'none');
   const [isVideoMember, setIsVideoMember] = useState(false);
+  
+  // Get the main tab from URL query parameter
+  const tabParam = searchParams.get("tab");
+  const defaultMainTab = tabParam === "video" ? "credits" : "chat";
+  const [mainTab, setMainTab] = useState(defaultMainTab);
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab === "video") {
+      setMainTab("credits");
+    } else if (tab === "chat") {
+      setMainTab("chat");
+    }
+  }, [searchParams]);
   
   const membershipBadge = getMembershipBadge(membershipTier);
 
@@ -159,7 +174,7 @@ const Pricing = () => {
 
       <div className="px-4 py-4">
         {/* Main Tabs: Chat vs Video Credits */}
-        <Tabs defaultValue="chat" className="w-full">
+        <Tabs value={mainTab} onValueChange={setMainTab} className="w-full">
           <div className="flex justify-center mb-4">
             <TabsList className="bg-secondary/50 p-1 rounded-full">
               <TabsTrigger 

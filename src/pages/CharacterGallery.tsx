@@ -159,10 +159,16 @@ const CharacterGallery = () => {
           <div className="flex items-center gap-2">
             {user ? (
               <>
-                <Badge className="bg-primary/20 text-primary border-primary/30 px-3 py-1 font-semibold">
+                <Badge 
+                  className="bg-primary/20 text-primary border-primary/30 px-3 py-1 font-semibold cursor-pointer hover:bg-primary/30 transition-colors"
+                  onClick={() => navigate("/pricing?tab=chat")}
+                >
                   PRO
                 </Badge>
-                <div className="flex items-center gap-1.5 bg-card/50 px-3 py-1.5 rounded-full border border-border/50">
+                <div 
+                  className="flex items-center gap-1.5 bg-card/50 px-3 py-1.5 rounded-full border border-border/50 cursor-pointer hover:bg-card/80 transition-colors"
+                  onClick={() => navigate("/pricing?tab=video")}
+                >
                   <Sparkles className="w-4 h-4 text-primary" />
                   <span className="font-semibold text-sm">{credits}</span>
                 </div>
@@ -252,10 +258,16 @@ const CharacterGallery = () => {
               <div className="flex items-center gap-2">
                 {user ? (
                   <>
-                    <Badge className="bg-primary/20 text-primary border-primary/30 px-3 py-1 font-semibold">
+                    <Badge 
+                      className="bg-primary/20 text-primary border-primary/30 px-3 py-1 font-semibold cursor-pointer hover:bg-primary/30 transition-colors"
+                      onClick={() => navigate("/pricing?tab=chat")}
+                    >
                       PRO
                     </Badge>
-                    <div className="flex items-center gap-1.5 bg-card/50 px-3 py-1.5 rounded-full border border-border/50">
+                    <div 
+                      className="flex items-center gap-1.5 bg-card/50 px-3 py-1.5 rounded-full border border-border/50 cursor-pointer hover:bg-card/80 transition-colors"
+                      onClick={() => navigate("/pricing?tab=video")}
+                    >
                       <Sparkles className="w-4 h-4 text-primary" />
                       <span className="font-semibold text-sm">{credits}</span>
                     </div>
