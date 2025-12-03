@@ -31,6 +31,7 @@ const Auth = () => {
     toast({
       title: "Demo Mode",
       description: "You are now logged in as a demo user!",
+      duration: 3000,
     });
     navigate("/");
   };
@@ -51,6 +52,7 @@ const Auth = () => {
         toast({
           title: "Success",
           description: "Logged in successfully!",
+          duration: 3000,
         });
         navigate("/");
       } else {
@@ -77,6 +79,7 @@ const Auth = () => {
         toast({
           title: "Success",
           description: "Account created successfully!",
+          duration: 3000,
         });
         navigate("/");
       }
