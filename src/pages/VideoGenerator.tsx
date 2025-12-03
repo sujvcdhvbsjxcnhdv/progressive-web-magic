@@ -3,11 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
-import { Upload, ArrowLeft, Maximize2, Share2, X, Check, Camera, Sparkles } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ArrowLeft, Maximize2, Share2, X, Check, Camera, Sparkles, Plus, Settings2, RotateCw, Crop } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginPrompt from "@/components/LoginPrompt";
@@ -23,7 +21,7 @@ const templates: Template[] = [
   { id: "1", name: "Toy box me", thumbnail: "https://images.unsplash.com/photo-1557053910-d9eadeed1c58?w=400&h=400&fit=crop", category: "Trending" },
   { id: "2", name: "Portrait Glow", thumbnail: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop", category: "Trending" },
   { id: "3", name: "Singing Star", thumbnail: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop", category: "Trending" },
-  { id: "4", name: "Fashion Model", thumbnail: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop", category: "Trending" },
+  { id: "4", name: "Fashion Model", thumbnail: "https://images.unsplash.com/photo-1524638431109-93d95c968f03?w=400&h=400&fit=crop", category: "Trending" },
   { id: "5", name: "Dance Queen", thumbnail: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=400&fit=crop", category: "Trending" },
   { id: "6", name: "Glam Look", thumbnail: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=400&fit=crop", category: "Trending" },
   { id: "7", name: "Spooky Dance", thumbnail: "https://images.unsplash.com/photo-1509557965875-b88c97052f0e?w=400&h=400&fit=crop", category: "Halloween" },
@@ -42,16 +40,21 @@ const templates: Template[] = [
   { id: "20", name: "Together", thumbnail: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=400&h=400&fit=crop", category: "Couple Video" },
 ];
 
+// Sample photos (first 3 are samples with label)
 const samplePhotos = [
   "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
   "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&h=200&fit=crop",
   "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200&h=200&fit=crop",
-  "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&h=200&fit=crop",
+];
+
+// User's photos (demo data with different images)
+const userPhotos = [
+  "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=200&h=200&fit=crop",
   "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop",
   "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=200&h=200&fit=crop",
-  "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=200&h=200&fit=crop",
   "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200&h=200&fit=crop",
   "https://images.unsplash.com/photo-1496440737103-cd596325d314?w=200&h=200&fit=crop",
+  "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&h=200&fit=crop",
 ];
 
 const categories = [
@@ -62,35 +65,41 @@ const categories = [
   { name: "Couple Video", emoji: "💑" },
 ];
 
+type ViewMode = "list" | "template-detail" | "quality-select" | "processing";
+
 const VideoGenerator = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedPhotoUrl, setSelectedPhotoUrl] = useState<string | null>(null);
   const [textPrompt, setTextPrompt] = useState("");
-  const [quality, setQuality] = useState("standard");
+  const [quality, setQuality] = useState("balanced");
   const [selectedCategory, setSelectedCategory] = useState("Trending");
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-  const [showTemplateDetail, setShowTemplateDetail] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [showUploadGuide, setShowUploadGuide] = useState(false);
   const [showPhotoSelect, setShowPhotoSelect] = useState(false);
+  const [showQualitySheet, setShowQualitySheet] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [photoTab, setPhotoTab] = useState<"photos" | "collections">("photos");
+  const [customImage, setCustomImage] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
+      const url = URL.createObjectURL(e.target.files[0]);
+      setSelectedPhotoUrl(url);
       toast.success("Image uploaded successfully!");
       setShowPhotoSelect(false);
-      handleGenerate();
+      setViewMode("quality-select");
     }
   };
 
-  const handleQualityChange = (value: string) => {
-    if (!user && selectedFile) {
-      setShowLoginPrompt(true);
-    } else {
-      setQuality(value);
+  const handleCustomImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const url = URL.createObjectURL(e.target.files[0]);
+      setCustomImage(url);
+      toast.success("Image added!");
     }
   };
 
@@ -99,15 +108,14 @@ const VideoGenerator = () => {
       setShowLoginPrompt(true);
       return;
     }
-    const credits = quality === "standard" ? 10 : quality === "hd" ? 20 : 50;
+    const credits = quality === "instant" ? 100 : quality === "balanced" ? 150 : 300;
     toast.success(`Starting video generation, will cost ${credits} credits`);
-    setShowTemplateDetail(false);
-    setShowPhotoSelect(false);
+    setViewMode("processing");
   };
 
   const handleTemplateClick = (template: Template) => {
     setSelectedTemplate(template);
-    setShowTemplateDetail(true);
+    setViewMode("template-detail");
   };
 
   const handleGoCreate = () => {
@@ -118,10 +126,10 @@ const VideoGenerator = () => {
     setShowPhotoSelect(true);
   };
 
-  const handleSamplePhotoClick = (photoUrl: string) => {
-    toast.success("Sample photo selected!");
+  const handlePhotoClick = (photoUrl: string) => {
+    setSelectedPhotoUrl(photoUrl);
     setShowPhotoSelect(false);
-    handleGenerate();
+    setViewMode("quality-select");
   };
 
   const handleShare = async () => {
@@ -138,8 +146,200 @@ const VideoGenerator = () => {
 
   const filteredTemplates = templates.filter(t => t.category === selectedCategory);
 
+  // Processing Page
+  if (viewMode === "processing") {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <header className="p-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setViewMode("list")}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+        </header>
+
+        <div className="flex-1 flex flex-col items-center justify-center px-6 pb-32">
+          <div className="relative w-48 h-64 rounded-2xl overflow-hidden mb-6">
+            <img
+              src={selectedPhotoUrl || selectedTemplate?.thumbnail}
+              alt="Processing"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center">
+              <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mb-4" />
+              <p className="text-white font-medium">Processing..</p>
+            </div>
+          </div>
+          <p className="text-muted-foreground text-center">
+            Ready soon. You can leave this screen.
+          </p>
+        </div>
+
+        <div className="p-6 space-y-3">
+          <Button
+            className="w-full rounded-full bg-purple-500 hover:bg-purple-600 text-white"
+            size="lg"
+            onClick={() => navigate("/")}
+          >
+            Home
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full rounded-full border-purple-400 text-purple-400 hover:bg-purple-400/10"
+            size="lg"
+            onClick={() => {
+              setViewMode("list");
+              setSelectedPhotoUrl(null);
+            }}
+          >
+            Template
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Quality Selection Page
+  if (viewMode === "quality-select" && selectedPhotoUrl) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <header className="p-4 flex items-center justify-center relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute left-4"
+            onClick={() => {
+              setViewMode("template-detail");
+              setSelectedPhotoUrl(null);
+            }}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <h1 className="text-lg font-semibold">Select Quality</h1>
+        </header>
+
+        <div className="flex-1 px-6 py-4">
+          <div className="flex justify-center mb-6">
+            <div className="relative w-48 h-64 rounded-2xl overflow-hidden">
+              <img
+                src={selectedPhotoUrl}
+                alt="Selected"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2">
+                <button className="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-white">
+                  <RotateCw className="w-4 h-4" />
+                </button>
+                <button className="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-white">
+                  <Crop className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <h3 className="text-sm font-medium mb-4">Choose Mode</h3>
+          <div className="space-y-3">
+            <button
+              onClick={() => setQuality("instant")}
+              className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between ${
+                quality === "instant" 
+                  ? "border-pink-500 bg-pink-500/10" 
+                  : "border-border hover:border-pink-500/50"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-white" />
+                </div>
+                <div className="text-left">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">Instant Mode</span>
+                    <span className="text-xs bg-pink-500 text-white px-2 py-0.5 rounded-full">PRO</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Fast generation, lower quality · 100 credits</p>
+                </div>
+              </div>
+              <div className={`w-5 h-5 rounded-full border-2 ${quality === "instant" ? "border-pink-500 bg-pink-500" : "border-muted-foreground"}`}>
+                {quality === "instant" && <div className="w-full h-full rounded-full bg-pink-500" />}
+              </div>
+            </button>
+
+            <button
+              onClick={() => setQuality("balanced")}
+              className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between ${
+                quality === "balanced" 
+                  ? "border-pink-500 bg-pink-500/10" 
+                  : "border-border hover:border-pink-500/50"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-white" />
+                </div>
+                <div className="text-left">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">Balanced Mode</span>
+                    <span className="text-xs bg-pink-500 text-white px-2 py-0.5 rounded-full">PRO</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Balanced speed and clarity · 150 credits</p>
+                </div>
+              </div>
+              <div className={`w-5 h-5 rounded-full border-2 ${quality === "balanced" ? "border-pink-500 bg-pink-500" : "border-muted-foreground"}`}>
+                {quality === "balanced" && <div className="w-full h-full rounded-full bg-pink-500" />}
+              </div>
+            </button>
+
+            <button
+              onClick={() => setQuality("ultra")}
+              className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between ${
+                quality === "ultra" 
+                  ? "border-pink-500 bg-pink-500/10" 
+                  : "border-border hover:border-pink-500/50"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
+                  <span className="text-xs font-bold text-white">HD</span>
+                </div>
+                <div className="text-left">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">Ultra Mode</span>
+                    <span className="text-xs bg-pink-500 text-white px-2 py-0.5 rounded-full">PRO</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">High definition with fine detail · 300 credits</p>
+                </div>
+              </div>
+              <div className={`w-5 h-5 rounded-full border-2 ${quality === "ultra" ? "border-pink-500 bg-pink-500" : "border-muted-foreground"}`}>
+                {quality === "ultra" && <div className="w-full h-full rounded-full bg-pink-500" />}
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div className="p-6">
+          <Button
+            className="w-full rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 hover:from-pink-600 hover:via-purple-600 hover:to-pink-600 text-white font-medium"
+            size="lg"
+            onClick={handleGenerate}
+          >
+            <Sparkles className="w-5 h-5 mr-2" />
+            Create
+          </Button>
+        </div>
+
+        <LoginPrompt
+          open={showLoginPrompt}
+          onOpenChange={setShowLoginPrompt}
+          message="Please login to generate videos."
+        />
+      </div>
+    );
+  }
+
   // Template Detail Page
-  if (showTemplateDetail && selectedTemplate) {
+  if (viewMode === "template-detail" && selectedTemplate) {
     return (
       <div className="min-h-screen bg-background">
         <div className={`relative ${isFullscreen ? "h-screen" : ""}`}>
@@ -153,7 +353,7 @@ const VideoGenerator = () => {
                 if (isFullscreen) {
                   setIsFullscreen(false);
                 } else {
-                  setShowTemplateDetail(false);
+                  setViewMode("list");
                 }
               }}
             >
@@ -241,100 +441,65 @@ const VideoGenerator = () => {
                 </div>
               </div>
               <SheetTitle className="text-left">Select Photo</SheetTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute -top-2 right-12"
-                onClick={() => setShowPhotoSelect(false)}
-              >
-                <X className="w-4 h-4" />
-              </Button>
             </SheetHeader>
 
-            {/* Tabs */}
-            <div className="flex gap-2 mb-4">
-              <Button
-                variant={photoTab === "photos" ? "default" : "outline"}
-                size="sm"
-                className="rounded-full flex-1"
-                onClick={() => setPhotoTab("photos")}
-              >
-                Photos
-              </Button>
-              <Button
-                variant={photoTab === "collections" ? "default" : "outline"}
-                size="sm"
-                className="rounded-full flex-1"
-                onClick={() => setPhotoTab("collections")}
-              >
-                Collections
-              </Button>
-            </div>
-
-            {photoTab === "photos" ? (
-              <div className="space-y-4 overflow-y-auto max-h-[calc(70vh-140px)]">
-                <p className="text-sm text-muted-foreground">Recent</p>
-                <div className="grid grid-cols-4 gap-2">
-                  {/* Camera button */}
-                  <label className="aspect-square rounded-xl bg-muted flex items-center justify-center cursor-pointer hover:bg-muted/80 transition-colors">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      capture="environment"
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
-                    <Camera className="w-6 h-6 text-muted-foreground" />
-                  </label>
-                  
-                  {/* Sample photos */}
-                  {samplePhotos.map((photo, index) => (
-                    <div
-                      key={index}
-                      className="aspect-square rounded-xl overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={() => handleSamplePhotoClick(photo)}
-                    >
-                      <img src={photo} alt={`Sample ${index + 1}`} className="w-full h-full object-cover" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4 overflow-y-auto max-h-[calc(70vh-140px)]">
-                {[1, 2, 3].map((collection) => (
-                  <div key={collection}>
-                    <p className="text-sm text-muted-foreground mb-2">Collections {collection}</p>
-                    <div className="grid grid-cols-4 gap-2">
-                      {samplePhotos.slice(0, 4).map((photo, index) => (
-                        <div
-                          key={index}
-                          className="aspect-square rounded-xl overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
-                          onClick={() => handleSamplePhotoClick(photo)}
-                        >
-                          <img src={photo} alt={`Collection ${collection} - ${index + 1}`} className="w-full h-full object-cover" />
-                        </div>
-                      ))}
-                    </div>
+            <div className="space-y-4 overflow-y-auto max-h-[calc(70vh-100px)]">
+              {/* Recent section with camera and photos */}
+              <p className="text-sm text-muted-foreground">Recent</p>
+              <div className="grid grid-cols-4 gap-2">
+                {/* Camera button */}
+                <label className="aspect-square rounded-xl bg-muted flex items-center justify-center cursor-pointer hover:bg-muted/80 transition-colors">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                  <Camera className="w-6 h-6 text-muted-foreground" />
+                </label>
+                
+                {/* Sample photos (first 3 with "Sample" badge) */}
+                {samplePhotos.map((photo, index) => (
+                  <div
+                    key={`sample-${index}`}
+                    className="relative aspect-square rounded-xl overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => handlePhotoClick(photo)}
+                  >
+                    <img src={photo} alt={`Sample ${index + 1}`} className="w-full h-full object-cover" />
+                    <span className="absolute top-1 left-1 text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded">Sample</span>
                   </div>
                 ))}
               </div>
-            )}
+              
+              {/* User's photos */}
+              <div className="grid grid-cols-4 gap-2">
+                {userPhotos.map((photo, index) => (
+                  <div
+                    key={`user-${index}`}
+                    className="aspect-square rounded-xl overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => handlePhotoClick(photo)}
+                  >
+                    <img src={photo} alt={`User photo ${index + 1}`} className="w-full h-full object-cover" />
+                  </div>
+                ))}
+              </div>
+            </div>
           </SheetContent>
         </Sheet>
 
         {/* Upload Guidelines Modal */}
         <Dialog open={showUploadGuide} onOpenChange={setShowUploadGuide}>
-          <DialogContent className="max-w-sm">
-            <DialogHeader className="relative">
+          <DialogContent className="max-w-sm [&>button]:hidden">
+            <div className="flex justify-end -mt-2 -mr-2">
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute -top-2 -right-2"
                 onClick={() => setShowUploadGuide(false)}
               >
                 <X className="w-4 h-4" />
               </Button>
-            </DialogHeader>
+            </div>
             
             <div className="space-y-6">
               <div>
@@ -456,18 +621,27 @@ const VideoGenerator = () => {
     <div className="min-h-screen bg-background">
       {/* Header with back button */}
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="container mx-auto px-4 py-3 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-xl font-bold">AI Video</h1>
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="text-xl font-bold">AI Video</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs bg-pink-500 text-white px-2 py-0.5 rounded-full font-medium">PRO</span>
+            <span className="text-sm font-medium flex items-center gap-1">
+              <Sparkles className="w-4 h-4" />
+              151
+            </span>
+          </div>
         </div>
       </header>
 
       <div className="container mx-auto px-4 py-6">
         <Tabs defaultValue="template" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 p-1 rounded-full">
-            <TabsTrigger value="template" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger value="template" className="rounded-full data-[state=active]:bg-background data-[state=active]:text-foreground">
               Template
             </TabsTrigger>
             <TabsTrigger value="custom" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
@@ -519,88 +693,124 @@ const VideoGenerator = () => {
 
           {/* Custom Tab */}
           <TabsContent value="custom" className="space-y-6">
-            <div className="bg-card rounded-2xl p-4 space-y-4 border border-border">
-              <div>
-                <h3 className="text-sm font-medium mb-3">Video Description</h3>
-                <Textarea
-                  placeholder="Describe the video scene you want..."
-                  className="min-h-[120px] resize-none rounded-xl"
-                  value={textPrompt}
-                  onChange={(e) => setTextPrompt(e.target.value)}
-                  maxLength={200}
-                />
-                <p className="text-xs text-muted-foreground text-right mt-1">
-                  {textPrompt.length}/200
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-medium mb-2">Reference Image (Optional)</h3>
-                <p className="text-xs text-muted-foreground mb-3">
-                  Upload a reference image to improve results
-                </p>
-                <div className="border-2 border-dashed border-border rounded-xl p-6 text-center">
-                  <input
-                    type="file"
-                    id="text-image-upload"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                  />
-                  <label htmlFor="text-image-upload" className="cursor-pointer">
-                    <Upload className="w-12 h-12 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">
-                      {selectedFile ? selectedFile.name : "Click to upload reference image"}
-                    </p>
-                  </label>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-medium mb-3">Quality</h3>
-                <RadioGroup value={quality} onValueChange={handleQualityChange}>
-                  <div className="flex items-center space-x-2 p-3 border rounded-xl mb-2">
-                    <RadioGroupItem value="standard" id="text-standard" />
-                    <Label htmlFor="text-standard" className="flex-1 cursor-pointer">
-                      <div className="flex justify-between items-center">
-                        <span>Standard</span>
-                        <span className="text-sm text-muted-foreground">10 Credits</span>
-                      </div>
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2 p-3 border rounded-xl mb-2">
-                    <RadioGroupItem value="hd" id="text-hd" />
-                    <Label htmlFor="text-hd" className="flex-1 cursor-pointer">
-                      <div className="flex justify-between items-center">
-                        <span>HD</span>
-                        <span className="text-sm text-muted-foreground">20 Credits</span>
-                      </div>
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2 p-3 border rounded-xl">
-                    <RadioGroupItem value="ultra" id="text-ultra" />
-                    <Label htmlFor="text-ultra" className="flex-1 cursor-pointer">
-                      <div className="flex justify-between items-center">
-                        <span>4K Ultra</span>
-                        <span className="text-sm text-muted-foreground">50 Credits</span>
-                      </div>
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              <Button 
-                className="w-full rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 hover:from-pink-600 hover:via-purple-600 hover:to-pink-600" 
-                size="lg"
-                onClick={handleGenerate}
-                disabled={!textPrompt.trim()}
-              >
-                <Sparkles className="w-5 h-5 mr-2" />
-                Go Create
-              </Button>
+            <div>
+              <h3 className="text-base font-semibold mb-3">Type your idea</h3>
+              <Textarea
+                placeholder="Scene + motion + camera
+e.g., Wear ethereal wings and dazzle like a..."
+                className="min-h-[120px] resize-none rounded-xl bg-card border-border"
+                value={textPrompt}
+                onChange={(e) => setTextPrompt(e.target.value)}
+                maxLength={200}
+              />
+              <p className="text-xs text-muted-foreground text-right mt-1">
+                {textPrompt.length}/200
+              </p>
             </div>
+
+            <div className="flex gap-3">
+              <label className="flex-1 border border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-muted/30 transition-colors">
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleCustomImageChange}
+                />
+                {customImage ? (
+                  <div className="relative">
+                    <img src={customImage} alt="Custom" className="w-16 h-16 rounded-lg object-cover" />
+                    <button 
+                      onClick={(e) => { e.preventDefault(); setCustomImage(null); }}
+                      className="absolute -top-2 -right-2 w-5 h-5 bg-background rounded-full flex items-center justify-center border"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <Plus className="w-6 h-6 text-muted-foreground mb-1" />
+                    <span className="text-sm font-medium">Add Image</span>
+                    <span className="text-xs text-muted-foreground">Optional</span>
+                  </>
+                )}
+              </label>
+
+              <button 
+                onClick={() => setShowQualitySheet(true)}
+                className="flex-1 border border-border rounded-xl p-4 flex flex-col items-center justify-center hover:bg-muted/30 transition-colors"
+              >
+                <Settings2 className="w-6 h-6 text-muted-foreground mb-1" />
+                <span className="text-sm font-medium">Standard</span>
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  10 Credits
+                </span>
+              </button>
+            </div>
+
+            <Button 
+              className="w-full rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 hover:from-pink-600 hover:via-purple-600 hover:to-pink-600" 
+              size="lg"
+              onClick={handleGenerate}
+              disabled={!textPrompt.trim()}
+            >
+              <Sparkles className="w-5 h-5 mr-2" />
+              Create
+            </Button>
           </TabsContent>
         </Tabs>
+
+        {/* Quality Selection Sheet for Custom */}
+        <Sheet open={showQualitySheet} onOpenChange={setShowQualitySheet}>
+          <SheetContent side="bottom" className="rounded-t-3xl">
+            <SheetHeader className="pb-4">
+              <SheetTitle>Choose Mode</SheetTitle>
+            </SheetHeader>
+            <div className="space-y-3 pb-6">
+              <button
+                onClick={() => { setQuality("standard"); setShowQualitySheet(false); }}
+                className={`w-full p-4 rounded-2xl border flex items-center justify-between ${
+                  quality === "standard" ? "border-primary bg-primary/10" : "border-border"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="font-medium">Standard</span>
+                </div>
+                <span className="text-sm text-muted-foreground flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  10 Credits
+                </span>
+              </button>
+              <button
+                onClick={() => { setQuality("hd"); setShowQualitySheet(false); }}
+                className={`w-full p-4 rounded-2xl border flex items-center justify-between ${
+                  quality === "hd" ? "border-primary bg-primary/10" : "border-border"
+                }`}
+              >
+                <span className="font-medium">HD</span>
+                <span className="text-sm text-muted-foreground flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  20 Credits
+                </span>
+              </button>
+              <button
+                onClick={() => { setQuality("4k"); setShowQualitySheet(false); }}
+                className={`w-full p-4 rounded-2xl border flex items-center justify-between ${
+                  quality === "4k" ? "border-primary bg-primary/10" : "border-border"
+                }`}
+              >
+                <span className="font-medium">4K</span>
+                <span className="text-sm text-muted-foreground flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  50 Credits
+                </span>
+              </button>
+            </div>
+          </SheetContent>
+        </Sheet>
 
         <LoginPrompt
           open={showLoginPrompt}
