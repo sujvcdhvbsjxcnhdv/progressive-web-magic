@@ -83,7 +83,17 @@ const Settings = () => {
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => {
+                if (window.history.length > 1) {
+                  navigate(-1);
+                } else {
+                  navigate("/");
+                }
+              }}
+            >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <h1 className="text-lg font-semibold">Setting</h1>
@@ -227,14 +237,6 @@ const Settings = () => {
                     <span className="text-muted-foreground">Billing Renewal</span>
                     <span>{mockChatSubscription.billingRenewal}</span>
                   </div>
-                </div>
-                <div className="flex gap-3 pt-2">
-                  <Button variant="secondary" className="flex-1" size="sm">
-                    Manage Payment
-                  </Button>
-                  <Button variant="outline" className="flex-1" size="sm">
-                    View Invoices
-                  </Button>
                 </div>
               </div>
             </div>
