@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowLeft, FileText, Shield, Trash2 } from "lucide-react";
+import { ArrowLeft, FileText, Shield, Trash2, Zap, Video, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -11,16 +11,49 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+// Mock subscription data - replace with real data from database
+const mockChatSubscription = {
+  plan: "Plus",
+  credits: 13164,
+  dailyCredits: 60,
+  membershipCredits: 13014,
+  bonusCredits: 90,
+  expiredDate: "2025-12-27",
+  price: "$14.99",
+  billingPeriod: "Monthly",
+  billingRenewal: "2025-12-27",
+};
+
+const mockVideoSubscription = {
+  plan: "Weekly",
+  credits: 500,
+  expiredDate: "2025-12-10",
+  price: "$4.99",
+  billingPeriod: "Weekly",
+  billingRenewal: "2025-12-10",
+};
 
 const Settings = () => {
   const navigate = useNavigate();
   const { user, profile, signOut } = useAuth();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [showChatSubscription, setShowChatSubscription] = useState(false);
+  const [showVideoSubscription, setShowVideoSubscription] = useState(false);
+  
+  // Demo states - in real app, fetch from database
+  const [hasChatSubscription] = useState(true);
+  const [hasVideoSubscription] = useState(true);
 
   const handleClearCache = () => {
     toast.success("Cache cleared successfully!");
@@ -52,8 +85,46 @@ const Settings = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-6 max-w-lg">
-        <Card className="mb-6">
+      <div className="container mx-auto px-4 py-6 max-w-lg space-y-4">
+        {/* Subscription Info Card */}
+        <Card>
+          <CardContent className="p-4 space-y-1">
+            <button 
+              className="w-full flex items-center justify-between py-3 hover:bg-muted/50 rounded-lg px-2 transition-colors"
+              onClick={() => setShowChatSubscription(true)}
+            >
+              <div className="flex items-center gap-3">
+                <Zap className="w-5 h-5 text-yellow-500" />
+                <span>Chat Membership</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                {hasChatSubscription && (
+                  <span className="text-sm text-pink-500">{mockChatSubscription.plan}</span>
+                )}
+                <ChevronRight className="w-4 h-4" />
+              </div>
+            </button>
+            
+            <button 
+              className="w-full flex items-center justify-between py-3 hover:bg-muted/50 rounded-lg px-2 transition-colors"
+              onClick={() => setShowVideoSubscription(true)}
+            >
+              <div className="flex items-center gap-3">
+                <Video className="w-5 h-5 text-purple-500" />
+                <span>Video Membership</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                {hasVideoSubscription && (
+                  <span className="text-sm text-purple-500">{mockVideoSubscription.plan}</span>
+                )}
+                <ChevronRight className="w-4 h-4" />
+              </div>
+            </button>
+          </CardContent>
+        </Card>
+
+        {/* Settings Card */}
+        <Card>
           <CardContent className="p-4 space-y-1">
             <button 
               className="w-full flex items-center gap-3 py-3 hover:bg-muted/50 rounded-lg px-2 transition-colors"
@@ -89,12 +160,150 @@ const Settings = () => {
         </button>
       </div>
 
+      {/* Chat Subscription Dialog */}
+      <Dialog open={showChatSubscription} onOpenChange={setShowChatSubscription}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-yellow-500" />
+              Chat Membership
+            </DialogTitle>
+          </DialogHeader>
+          
+          {hasChatSubscription ? (
+            <div className="space-y-4">
+              {/* My Plan */}
+              <div className="bg-muted/50 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-muted-foreground">My Plan</span>
+                  <span className="text-xs text-primary underline cursor-pointer">Credits Usage Details</span>
+                </div>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-pink-500 font-semibold">{mockChatSubscription.plan}</span>
+                  <div className="flex items-center gap-1">
+                    <Zap className="w-4 h-4 text-yellow-500" />
+                    <span className="font-bold text-lg">{mockChatSubscription.credits.toLocaleString()}</span>
+                  </div>
+                </div>
+                <div className="flex gap-4 text-xs text-muted-foreground">
+                  <span>Daily: <strong className="text-foreground">{mockChatSubscription.dailyCredits}</strong></span>
+                  <span>Membership: <strong className="text-foreground">{mockChatSubscription.membershipCredits.toLocaleString()}</strong></span>
+                  <span>Bonus: <strong className="text-foreground">{mockChatSubscription.bonusCredits}</strong></span>
+                </div>
+              </div>
+              
+              {/* Billing Info */}
+              <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                <h4 className="font-medium">Billing & Payment</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Expired Date</span>
+                    <span>{mockChatSubscription.expiredDate}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Price</span>
+                    <span>{mockChatSubscription.price}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Billing Period</span>
+                    <span>{mockChatSubscription.billingPeriod}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Billing Renewal</span>
+                    <span>{mockChatSubscription.billingRenewal}</span>
+                  </div>
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <Button variant="secondary" className="flex-1" size="sm">
+                    Manage Payment
+                  </Button>
+                  <Button variant="outline" className="flex-1" size="sm">
+                    View Invoices
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">No active subscription</p>
+              <Button onClick={() => navigate("/pricing")}>Subscribe Now</Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Video Subscription Dialog */}
+      <Dialog open={showVideoSubscription} onOpenChange={setShowVideoSubscription}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Video className="w-5 h-5 text-purple-500" />
+              Video Membership
+            </DialogTitle>
+          </DialogHeader>
+          
+          {hasVideoSubscription ? (
+            <div className="space-y-4">
+              {/* My Plan */}
+              <div className="bg-muted/50 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-muted-foreground">My Plan</span>
+                </div>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-purple-500 font-semibold">{mockVideoSubscription.plan}</span>
+                  <div className="flex items-center gap-1">
+                    <Video className="w-4 h-4 text-purple-500" />
+                    <span className="font-bold text-lg">{mockVideoSubscription.credits} credits</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Billing Info */}
+              <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                <h4 className="font-medium">Billing & Payment</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Expired Date</span>
+                    <span>{mockVideoSubscription.expiredDate}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Price</span>
+                    <span>{mockVideoSubscription.price}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Billing Period</span>
+                    <span>{mockVideoSubscription.billingPeriod}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Billing Renewal</span>
+                    <span>{mockVideoSubscription.billingRenewal}</span>
+                  </div>
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <Button variant="secondary" className="flex-1" size="sm">
+                    Manage Payment
+                  </Button>
+                  <Button variant="outline" className="flex-1" size="sm">
+                    View Invoices
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">No active subscription</p>
+              <Button onClick={() => navigate("/pricing")}>Subscribe Now</Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Logout Confirmation Dialog */}
       <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
         <AlertDialogContent className="max-w-xs">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-center">
-              Are You Sure To Delete The Account?
+              Are you sure you want to logout?
             </AlertDialogTitle>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row gap-4 sm:justify-center">
@@ -105,7 +314,7 @@ const Settings = () => {
               Confirm
             </AlertDialogAction>
             <AlertDialogCancel className="bg-transparent border-0 hover:bg-muted">
-              Later
+              Cancel
             </AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>

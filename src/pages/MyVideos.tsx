@@ -1,7 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play, RotateCw, Trash2 } from "lucide-react";
+import { ArrowLeft, Play, RotateCw, Trash2, Check } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface VideoTask {
   id: string;
@@ -108,7 +118,34 @@ const mockTasks: VideoTask[] = [
 
 const MyVideos = () => {
   const navigate = useNavigate();
-  const [tasks] = useState<VideoTask[]>(mockTasks.slice(0, 10)); // Show max 10 recent videos
+  const [tasks, setTasks] = useState<VideoTask[]>(mockTasks.slice(0, 10));
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  const toggleSelectMode = () => {
+    if (isSelectMode) {
+      setSelectedIds(new Set());
+    }
+    setIsSelectMode(!isSelectMode);
+  };
+
+  const toggleSelect = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const handleDelete = () => {
+    setTasks(tasks.filter(task => !selectedIds.has(task.id)));
+    setSelectedIds(new Set());
+    setIsSelectMode(false);
+    setShowDeleteDialog(false);
+  };
 
   const renderVideoStatus = (task: VideoTask) => {
     switch (task.status) {
@@ -149,7 +186,12 @@ const MyVideos = () => {
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </div>
-          <Button variant="ghost" size="icon">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={toggleSelectMode}
+            className={isSelectMode ? "text-primary" : ""}
+          >
             <Trash2 className="w-5 h-5" />
           </Button>
         </div>
@@ -158,14 +200,29 @@ const MyVideos = () => {
       <div className="container mx-auto px-4 py-4 max-w-lg">
         <div className="grid grid-cols-2 gap-3">
           {tasks.map((task) => (
-            <div key={task.id} className="relative">
+            <div 
+              key={task.id} 
+              className="relative"
+              onClick={() => isSelectMode && toggleSelect(task.id)}
+            >
               <div className="aspect-[4/5] rounded-xl overflow-hidden relative">
                 <img
                   src={task.thumbnail}
                   alt={task.title}
                   className="w-full h-full object-cover"
                 />
-                {renderVideoStatus(task)}
+                {!isSelectMode && renderVideoStatus(task)}
+                {isSelectMode && (
+                  <div className="absolute top-2 right-2">
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                      selectedIds.has(task.id) 
+                        ? "bg-primary border-primary" 
+                        : "border-white bg-black/30"
+                    }`}>
+                      {selectedIds.has(task.id) && <Check className="w-4 h-4 text-white" />}
+                    </div>
+                  </div>
+                )}
               </div>
               <p className="text-sm font-medium mt-2 line-clamp-2">{task.title}</p>
               {task.status === "processing" && (
@@ -178,6 +235,44 @@ const MyVideos = () => {
           ))}
         </div>
       </div>
+
+      {/* Delete Button - Fixed at bottom when in select mode */}
+      {isSelectMode && selectedIds.size > 0 && (
+        <div className="fixed bottom-6 left-0 right-0 flex justify-center z-50">
+          <Button 
+            variant="destructive" 
+            className="px-8"
+            onClick={() => setShowDeleteDialog(true)}
+          >
+            Delete ({selectedIds.size})
+          </Button>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent className="max-w-xs">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-center">
+              Delete {selectedIds.size} video{selectedIds.size > 1 ? 's' : ''}?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row gap-4 sm:justify-center">
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+            <AlertDialogCancel className="bg-transparent border-0 hover:bg-muted">
+              Cancel
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
