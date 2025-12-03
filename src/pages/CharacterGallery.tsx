@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Menu, X, Sparkles } from "lucide-react";
+import { MessageCircle, Menu, X, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginPrompt from "@/components/LoginPrompt";
 import AppSidebar from "@/components/AppSidebar";
@@ -71,12 +71,6 @@ const characters = [
   },
 ];
 
-const formatCount = (num: number) => {
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + "K";
-  }
-  return num.toString();
-};
 
 const CharacterGallery = () => {
   const navigate = useNavigate();
@@ -84,6 +78,7 @@ const CharacterGallery = () => {
   const [selectedCharacter, setSelectedCharacter] = useState<typeof characters[0] | null>(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showBackground, setShowBackground] = useState(false);
   const credits = 151;
   const hasNewMessages = true;
 
@@ -173,12 +168,6 @@ const CharacterGallery = () => {
                     index % 3 === 0 ? 'aspect-[3/4]' : 'aspect-[4/5]'
                   }`}
                 />
-                
-                {/* Chat Count Badge */}
-                <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-full">
-                  <MessageCircle className="w-3 h-3 text-white" />
-                  <span className="text-xs text-white font-medium">{formatCount(character.conversations)}</span>
-                </div>
 
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -208,66 +197,83 @@ const CharacterGallery = () => {
 
       {/* Character Detail Modal - Full Screen Style */}
       {selectedCharacter && (
-        <div className="fixed inset-0 z-50 bg-background">
+        <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
           {/* Header Image */}
-          <div className="relative h-[45vh]">
+          <div className="relative">
             <img
               src={selectedCharacter.avatar}
               alt={selectedCharacter.name}
-              className="w-full h-full object-cover"
+              className="w-full aspect-[3/4] object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
             
             {/* Close Button */}
             <button
-              onClick={() => setSelectedCharacter(null)}
+              onClick={() => {
+                setSelectedCharacter(null);
+                setShowBackground(false);
+              }}
               className="absolute top-4 right-4 p-2 bg-black/30 backdrop-blur-sm rounded-full hover:bg-black/50 transition-colors"
             >
               <X className="w-5 h-5 text-white" />
             </button>
 
-            {/* Character Badge */}
-            <div className="absolute bottom-4 left-4 flex items-center gap-3">
-              <img
-                src={selectedCharacter.avatar}
-                alt={selectedCharacter.name}
-                className="w-16 h-16 rounded-full border-2 border-background object-cover"
-              />
-              <div>
-                <h2 className="text-2xl font-bold text-white">{selectedCharacter.name}</h2>
-                <div className="flex gap-2 mt-1">
-                  {selectedCharacter.tags.map((tag) => (
-                    <span 
-                      key={tag} 
-                      className="text-xs bg-white/20 backdrop-blur-sm text-white px-2 py-0.5 rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+            {/* Character Info - Overlapping position */}
+            <div className="absolute bottom-0 left-0 right-0 translate-y-1/2 px-4">
+              <div className="flex items-end gap-3">
+                <img
+                  src={selectedCharacter.avatar}
+                  alt={selectedCharacter.name}
+                  className="w-16 h-16 rounded-full border-4 border-background object-cover shadow-lg"
+                />
+                <div className="pb-1">
+                  <h2 className="text-xl font-bold">{selectedCharacter.name}</h2>
+                  <div className="flex gap-1.5 mt-1">
+                    {selectedCharacter.tags.map((tag) => (
+                      <span 
+                        key={tag} 
+                        className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Content */}
-          <div className="px-4 py-6 space-y-6 overflow-y-auto" style={{ height: 'calc(55vh - 80px)' }}>
+          {/* Content - with padding top for overlapping avatar */}
+          <div className="px-4 pt-12 pb-24 space-y-5">
             <div>
-              <h3 className="font-bold text-lg mb-2">About</h3>
+              <h3 className="font-bold text-base mb-2">About</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 {selectedCharacter.fullDescription}
               </p>
             </div>
             
             <div>
-              <h3 className="font-bold text-lg mb-2">Background</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                {selectedCharacter.background}
-              </p>
+              <button
+                onClick={() => setShowBackground(!showBackground)}
+                className="flex items-center gap-2 font-bold text-base mb-2 w-full"
+              >
+                <span>Background</span>
+                {showBackground ? (
+                  <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                )}
+              </button>
+              {showBackground && (
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  {selectedCharacter.background}
+                </p>
+              )}
             </div>
           </div>
 
           {/* Start Chat Button */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-background border-t border-border">
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent pt-8">
             <Button
               className="w-full h-12 text-base font-semibold rounded-full"
               size="lg"
