@@ -5,22 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Play, Download, Coins, ChevronRight, Globe, ArrowLeft, LogOut } from "lucide-react";
+import { Play, Download, Sparkles, ChevronRight, Settings, RotateCw } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginPrompt from "@/components/LoginPrompt";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface VideoTask {
   id: string;
   title: string;
-  status: "completed" | "processing" | "queued";
+  status: "completed" | "processing" | "queued" | "failed";
   progress: number;
   thumbnail: string;
   videoUrl?: string;
@@ -31,41 +24,54 @@ interface VideoTask {
 const mockTasks: VideoTask[] = [
   {
     id: "1",
-    title: "Beach Sunset Video",
-    status: "completed",
-    progress: 100,
-    thumbnail: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop",
-    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    createdAt: new Date(Date.now() - 3600000),
-  },
-  {
-    id: "2",
-    title: "Romantic Dance Scene",
+    title: "Toy box me Toy box me Toy box me",
     status: "processing",
     progress: 75,
-    thumbnail: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=300&fit=crop",
+    thumbnail: "https://images.unsplash.com/photo-1557053910-d9eadeed1c58?w=400&h=400&fit=crop",
     createdAt: new Date(Date.now() - 1800000),
     estimatedTime: "2 minutes",
   },
   {
+    id: "2",
+    title: "Toy box me",
+    status: "completed",
+    progress: 100,
+    thumbnail: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=300&fit=crop",
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    createdAt: new Date(Date.now() - 3600000),
+  },
+  {
     id: "3",
-    title: "Cozy Indoor Moment",
+    title: "Toy box me Toy box me Toy box me",
     status: "queued",
     progress: 0,
     thumbnail: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=400&h=300&fit=crop",
     createdAt: new Date(Date.now() - 600000),
     estimatedTime: "5 minutes",
   },
+  {
+    id: "4",
+    title: "Toy box me Toy box me Toy box me",
+    status: "queued",
+    progress: 0,
+    thumbnail: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop",
+    createdAt: new Date(Date.now() - 300000),
+    estimatedTime: "6 minutes",
+  },
 ];
 
 const Mine = () => {
   const navigate = useNavigate();
   const { user, profile, signOut } = useAuth();
-  const [tasks, setTasks] = useState<VideoTask[]>(mockTasks);
-  const [language, setLanguage] = useState("en");
+  const [tasks] = useState<VideoTask[]>(mockTasks);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-  const credits = 50;
-  const isVip = false;
+  
+  // Demo states - toggle to show different UI states
+  const [hasVideoCredits] = useState(true); // Toggle to show no-credits state
+  const videoCredits = hasVideoCredits ? 50 : 0;
+  
+  // Membership badges - demo values
+  const chatMembershipTier = "plus"; // 'none' | 'basic' | 'plus' | 'pro'
 
   useEffect(() => {
     if (!user) {
@@ -73,200 +79,202 @@ const Mine = () => {
     }
   }, [user]);
 
-  const handleLogout = async () => {
-    await signOut();
-    toast.success("Logged out successfully");
-    navigate("/");
-  };
-
-  const handleDownload = (task: VideoTask) => {
-    if (task.videoUrl) {
-      toast.success("Downloading video...");
+  const getMembershipBadge = (tier: string) => {
+    switch (tier) {
+      case "basic":
+        return <Badge className="bg-purple-500 text-white text-[10px] px-1.5">PRO</Badge>;
+      case "plus":
+        return <Badge className="bg-pink-500 text-white text-[10px] px-1.5">PRO</Badge>;
+      case "pro":
+        return <Badge className="bg-yellow-500 text-white text-[10px] px-1.5">PRO</Badge>;
+      default:
+        return null;
     }
   };
 
-  const getStatusBadge = (status: VideoTask["status"]) => {
-    switch (status) {
-      case "completed":
-        return <Badge className="bg-green-500 text-white">Completed</Badge>;
+  const renderVideoStatus = (task: VideoTask) => {
+    switch (task.status) {
       case "processing":
-        return <Badge className="bg-blue-500 text-white">Processing</Badge>;
+        return (
+          <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center">
+            <div className="w-10 h-10 border-2 border-white border-t-transparent rounded-full animate-spin mb-2" />
+            <span className="text-white text-xs">Processing...</span>
+          </div>
+        );
+      case "completed":
+        return (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center">
+              <Play className="w-5 h-5 text-white fill-white" />
+            </div>
+          </div>
+        );
       case "queued":
-        return <Badge variant="secondary">Queued</Badge>;
+        return (
+          <div className="absolute bottom-2 left-2 flex items-center gap-1 text-[10px] text-orange-400">
+            <span>🔥</span>
+            <span>Queued · {task.estimatedTime}</span>
+          </div>
+        );
+      case "failed":
+        return (
+          <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center">
+            <RotateCw className="w-6 h-6 text-white mb-1" />
+            <span className="text-white text-xs">Retry</span>
+          </div>
+        );
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header with back button */}
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="container mx-auto px-4 py-3 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-            <ArrowLeft className="w-5 h-5" />
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <h1 className="text-xl font-bold">Me</h1>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => navigate("/settings")}
+          >
+            <Settings className="w-5 h-5" />
           </Button>
-          <h1 className="text-xl font-bold">Profile</h1>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-6 max-w-2xl">
-        {/* User Profile Card */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4 mb-4">
-              <Avatar className="w-16 h-16">
-                <AvatarImage src={profile?.avatar_url || "https://api.dicebear.com/7.x/avataaars/svg?seed=guest"} />
-                <AvatarFallback>{profile?.username?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <h3 className="font-bold text-lg">{profile?.username || user?.email?.split("@")[0] || "User"}</h3>
-                <p className="text-sm text-muted-foreground">{isVip ? "VIP Member" : "Free User"}</p>
-              </div>
+      <div className="container mx-auto px-4 py-4 max-w-lg">
+        {/* User Profile Section */}
+        <div className="flex items-center gap-3 mb-6">
+          <Avatar className="w-16 h-16 border-2 border-primary">
+            <AvatarImage src={user?.user_metadata?.avatar_url || profile?.avatar_url || undefined} />
+            <AvatarFallback className="text-xl bg-primary/20">
+              {profile?.username?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1">
+            <h2 className="font-bold text-lg">{profile?.username || user?.email?.split("@")[0] || "Guest User"}</h2>
+            <div className="flex items-center gap-1 mt-1">
+              {getMembershipBadge(chatMembershipTier)}
+              {getMembershipBadge(chatMembershipTier)}
+              {getMembershipBadge(chatMembershipTier)}
             </div>
-            
-            <div className="bg-primary/5 rounded-lg p-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Coins className="w-5 h-5 text-primary" />
-                <span className="font-bold text-lg">{credits} Credits</span>
+          </div>
+        </div>
+
+        {/* AI Video Credits Card */}
+        {hasVideoCredits ? (
+          <Card className="mb-6 bg-gradient-to-r from-purple-600 to-pink-500 border-0 overflow-hidden">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-white" />
+                  <span className="text-white font-bold text-xl">{videoCredits} Credits</span>
+                </div>
+                <Button 
+                  size="sm" 
+                  className="bg-white/20 hover:bg-white/30 text-white rounded-full px-4"
+                  onClick={() => navigate("/pricing")}
+                >
+                  Top Up
+                </Button>
+              </div>
+              <div className="absolute top-0 right-0 w-24 h-24 -mr-6 -mt-6">
+                <Avatar className="w-full h-full opacity-30">
+                  <AvatarImage src={user?.user_metadata?.avatar_url || profile?.avatar_url || undefined} />
+                </Avatar>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="mb-6 bg-gradient-to-br from-purple-900/80 to-purple-800/60 border-purple-700/50 overflow-hidden">
+            <CardContent className="p-5">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="text-2xl">💬</div>
+                <div>
+                  <h3 className="text-white font-semibold mb-1">Premium Membership</h3>
+                  <ul className="text-sm text-white/80 space-y-1">
+                    <li className="flex items-center gap-2">
+                      <span>💬</span> Chat Freely
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span>✨</span> Access All Characters
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span>⭐</span> Create 4K Videos
+                    </li>
+                  </ul>
+                </div>
               </div>
               <Button 
-                size="sm"
+                className="w-full bg-white text-purple-900 hover:bg-white/90 rounded-full font-semibold"
                 onClick={() => navigate("/pricing")}
               >
-                Recharge
+                Join Now
               </Button>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="flex flex-col items-center justify-center mt-6 text-white/60">
+                <div className="w-8 h-8 mb-2 opacity-50">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 6v6l4 2" />
+                  </svg>
+                </div>
+                <p className="text-sm">No Video Yet</p>
+                <p className="text-xs">Let's Make Your First One</p>
+                <Button 
+                  variant="outline"
+                  className="mt-3 border-white/30 text-white hover:bg-white/10 rounded-full"
+                  onClick={() => navigate("/video")}
+                >
+                  Create Video &gt;
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* My Videos Section */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">My Videos</h2>
-              {tasks.length > 0 && (
-                <Button variant="ghost" size="sm">
-                  More <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              )}
-            </div>
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-bold text-lg">My Videos</h2>
+            <Button variant="ghost" size="sm" className="text-muted-foreground">
+              More <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
 
-            {tasks.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No videos generated yet
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {tasks.slice(0, 3).map((task) => (
-                  <div key={task.id} className="flex gap-3 p-3 rounded-lg border">
-                    <img
-                      src={task.thumbnail}
-                      alt={task.title}
-                      className="w-24 h-18 object-cover rounded"
-                    />
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <h3 className="font-medium text-sm truncate">{task.title}</h3>
-                        {getStatusBadge(task.status)}
-                      </div>
-                      
-                      <p className="text-xs text-muted-foreground mb-2">
-                        {task.createdAt.toLocaleDateString()}
-                      </p>
-
-                      {task.status === "processing" && (
-                        <div>
-                          <Progress value={task.progress} className="h-1.5 mb-1" />
-                          <p className="text-xs text-muted-foreground">
-                            {task.progress}% • {task.estimatedTime}
-                          </p>
-                        </div>
-                      )}
-
-                      {task.status === "queued" && (
-                        <p className="text-xs text-muted-foreground">
-                          Est. {task.estimatedTime}
-                        </p>
-                      )}
-
-                      {task.status === "completed" && (
-                        <div className="flex gap-1">
-                          <Button size="sm" variant="outline" className="h-7 text-xs">
-                            <Play className="w-3 h-3 mr-1" />
-                            Play
-                          </Button>
-                          <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleDownload(task)}>
-                            <Download className="w-3 h-3 mr-1" />
-                            Download
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Settings Section */}
-        <Card>
-          <CardContent className="p-6">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <span className="text-lg">⚙️</span> Settings
-            </h2>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between py-2">
-                <div className="flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-muted-foreground" />
-                  <span>Language</span>
+          <div className="grid grid-cols-2 gap-3">
+            {tasks.map((task) => (
+              <div key={task.id} className="relative">
+                <div className="aspect-[4/5] rounded-xl overflow-hidden relative">
+                  <img
+                    src={task.thumbnail}
+                    alt={task.title}
+                    className="w-full h-full object-cover"
+                  />
+                  {renderVideoStatus(task)}
                 </div>
-                <Select value={language} onValueChange={setLanguage}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="zh">中文</SelectItem>
-                    <SelectItem value="ja">日本語</SelectItem>
-                  </SelectContent>
-                </Select>
+                <p className="text-sm font-medium mt-2 line-clamp-2">{task.title}</p>
+                {task.status === "processing" && (
+                  <p className="text-xs text-muted-foreground">{task.progress}% · {task.estimatedTime}</p>
+                )}
+                {task.status === "completed" && (
+                  <p className="text-xs text-muted-foreground">Completed · {task.createdAt.toLocaleDateString()}</p>
+                )}
               </div>
-
-              <button className="w-full text-left py-2 hover:text-primary transition-colors">
-                Terms of Service
-              </button>
-
-              <button className="w-full text-left py-2 hover:text-primary transition-colors">
-                Privacy Policy
-              </button>
-
-              <button className="w-full text-left py-2 hover:text-primary transition-colors">
-                Clear Cache
-              </button>
-
-              <button 
-                className="w-full text-left py-2 text-destructive hover:text-destructive/80 transition-colors flex items-center gap-2"
-                onClick={handleLogout}
-              >
-                <LogOut className="w-4 h-4" /> Logout
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <LoginPrompt
-          open={showLoginPrompt}
-          onOpenChange={(open) => {
-            setShowLoginPrompt(open);
-            if (!open && !user) {
-              navigate("/");
-            }
-          }}
-          message="Please login to access your profile."
-        />
+            ))}
+          </div>
+        </div>
       </div>
+
+      <LoginPrompt
+        open={showLoginPrompt}
+        onOpenChange={(open) => {
+          setShowLoginPrompt(open);
+          if (!open && !user) {
+            navigate("/");
+          }
+        }}
+        message="Please login to access your profile."
+      />
     </div>
   );
 };

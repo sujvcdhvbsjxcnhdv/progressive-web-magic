@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { user, enableDemoMode } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
@@ -19,11 +20,14 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Get return URL from query params, default to "/"
+  const returnUrl = searchParams.get("returnUrl") || "/";
+
   useEffect(() => {
     if (user) {
-      navigate("/");
+      navigate(returnUrl);
     }
-  }, [user, navigate]);
+  }, [user, navigate, returnUrl]);
 
   const handleGoogleLogin = async () => {
     // Enable demo mode for testing - this simulates a logged-in user
@@ -33,7 +37,7 @@ const Auth = () => {
       description: "You are now logged in as a demo user!",
       duration: 3000,
     });
-    navigate("/");
+    navigate(returnUrl);
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -54,7 +58,7 @@ const Auth = () => {
           description: "Logged in successfully!",
           duration: 3000,
         });
-        navigate("/");
+        navigate(returnUrl);
       } else {
         if (password !== confirmPassword) {
           toast({
@@ -70,7 +74,7 @@ const Auth = () => {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`,
+            emailRedirectTo: `${window.location.origin}${returnUrl}`,
           },
         });
 
@@ -81,7 +85,7 @@ const Auth = () => {
           description: "Account created successfully!",
           duration: 3000,
         });
-        navigate("/");
+        navigate(returnUrl);
       }
     } catch (error: any) {
       toast({
@@ -99,11 +103,11 @@ const Auth = () => {
       <Card className="w-full max-w-md p-8">
         <div className="mb-8">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate(returnUrl)}
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to home
+            Back
           </button>
           
           <div className="flex items-center justify-center gap-2 mb-4">
