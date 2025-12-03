@@ -12,6 +12,7 @@ import Pricing from "./pages/Pricing";
 import Mine from "./pages/Mine";
 import MyVideos from "./pages/MyVideos";
 import Settings from "./pages/Settings";
+import CreditsHistory from "./pages/CreditsHistory";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/mine" element={<Mine />} />
             <Route path="/my-videos" element={<MyVideos />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/credits-history" element={<CreditsHistory />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

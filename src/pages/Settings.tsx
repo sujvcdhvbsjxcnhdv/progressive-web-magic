@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowLeft, FileText, Shield, Trash2, Zap, Video, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import UserAvatarMenu from "@/components/UserAvatarMenu";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,7 +47,7 @@ const mockVideoSubscription = {
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { user, profile, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [showChatSubscription, setShowChatSubscription] = useState(false);
   const [showVideoSubscription, setShowVideoSubscription] = useState(false);
@@ -54,6 +55,7 @@ const Settings = () => {
   // Demo states - in real app, fetch from database
   const [hasChatSubscription] = useState(true);
   const [hasVideoSubscription] = useState(true);
+  const userCredits = 13164;
 
   const handleClearCache = () => {
     toast.success("Cache cleared successfully!");
@@ -63,6 +65,16 @@ const Settings = () => {
     await signOut();
     toast.success("Logged out successfully!");
     navigate("/");
+  };
+
+  // Get membership badge color
+  const getMembershipBadge = () => {
+    if (!hasChatSubscription) return null;
+    const plan = mockChatSubscription.plan;
+    if (plan === "Basic") return <Badge className="bg-purple-500 text-white text-xs">Basic</Badge>;
+    if (plan === "Plus") return <Badge className="bg-pink-500 text-white text-xs">Plus</Badge>;
+    if (plan === "Pro Yearly") return <Badge className="bg-yellow-500 text-white text-xs">Pro</Badge>;
+    return null;
   };
 
   return (
@@ -76,12 +88,16 @@ const Settings = () => {
             </Button>
             <h1 className="text-lg font-semibold">Setting</h1>
           </div>
-          <Avatar className="w-8 h-8">
-            <AvatarImage src={user?.user_metadata?.avatar_url || profile?.avatar_url || undefined} />
-            <AvatarFallback className="text-sm bg-primary/20">
-              {profile?.username?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
-            </AvatarFallback>
-          </Avatar>
+          <div className="flex items-center gap-3">
+            {getMembershipBadge()}
+            {user && (
+              <div className="flex items-center gap-1 text-sm">
+                <Zap className="w-4 h-4 text-yellow-500" />
+                <span>{userCredits.toLocaleString()}</span>
+              </div>
+            )}
+            <UserAvatarMenu />
+          </div>
         </div>
       </header>
 
@@ -176,19 +192,18 @@ const Settings = () => {
               <div className="bg-muted/50 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm text-muted-foreground">My Plan</span>
-                  <span className="text-xs text-primary underline cursor-pointer">Credits Usage Details</span>
                 </div>
-                <div className="flex items-center gap-3 mb-2">
+                <div className="flex items-center gap-3 mb-3">
                   <span className="text-pink-500 font-semibold">{mockChatSubscription.plan}</span>
                   <div className="flex items-center gap-1">
                     <Zap className="w-4 h-4 text-yellow-500" />
                     <span className="font-bold text-lg">{mockChatSubscription.credits.toLocaleString()}</span>
                   </div>
                 </div>
-                <div className="flex gap-4 text-xs text-muted-foreground">
-                  <span>Daily: <strong className="text-foreground">{mockChatSubscription.dailyCredits}</strong></span>
-                  <span>Membership: <strong className="text-foreground">{mockChatSubscription.membershipCredits.toLocaleString()}</strong></span>
-                  <span>Bonus: <strong className="text-foreground">{mockChatSubscription.bonusCredits}</strong></span>
+                <div className="flex flex-wrap gap-2">
+                  <span className="bg-muted px-3 py-1 rounded-full text-xs">Daily: <strong>{mockChatSubscription.dailyCredits}</strong></span>
+                  <span className="bg-muted px-3 py-1 rounded-full text-xs">Membership: <strong>{mockChatSubscription.membershipCredits.toLocaleString()}</strong></span>
+                  <span className="bg-muted px-3 py-1 rounded-full text-xs">Bonus: <strong>{mockChatSubscription.bonusCredits}</strong></span>
                 </div>
               </div>
               
@@ -248,6 +263,15 @@ const Settings = () => {
               <div className="bg-muted/50 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm text-muted-foreground">My Plan</span>
+                  <button 
+                    className="text-xs text-primary underline cursor-pointer"
+                    onClick={() => {
+                      setShowVideoSubscription(false);
+                      navigate("/credits-history");
+                    }}
+                  >
+                    Credits Usage Details
+                  </button>
                 </div>
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-purple-500 font-semibold">{mockVideoSubscription.plan}</span>
