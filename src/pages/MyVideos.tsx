@@ -1,0 +1,185 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Play, RotateCw, Trash2 } from "lucide-react";
+
+interface VideoTask {
+  id: string;
+  title: string;
+  status: "completed" | "processing" | "queued" | "failed";
+  progress: number;
+  thumbnail: string;
+  videoUrl?: string;
+  createdAt: Date;
+  estimatedTime?: string;
+}
+
+const mockTasks: VideoTask[] = [
+  {
+    id: "1",
+    title: "Toy box me Toy box me Toy box me",
+    status: "processing",
+    progress: 75,
+    thumbnail: "https://images.unsplash.com/photo-1557053910-d9eadeed1c58?w=400&h=400&fit=crop",
+    createdAt: new Date(Date.now() - 1800000),
+    estimatedTime: "2 minutes",
+  },
+  {
+    id: "2",
+    title: "Toy box me",
+    status: "completed",
+    progress: 100,
+    thumbnail: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=300&fit=crop",
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    createdAt: new Date(Date.now() - 3600000),
+  },
+  {
+    id: "3",
+    title: "Toy box me Toy box me Toy box me",
+    status: "queued",
+    progress: 0,
+    thumbnail: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=400&h=300&fit=crop",
+    createdAt: new Date(Date.now() - 600000),
+    estimatedTime: "5 minutes",
+  },
+  {
+    id: "4",
+    title: "Toy box me Toy box me Toy box me",
+    status: "queued",
+    progress: 0,
+    thumbnail: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop",
+    createdAt: new Date(Date.now() - 300000),
+    estimatedTime: "6 minutes",
+  },
+  {
+    id: "5",
+    title: "Beach sunset dance",
+    status: "completed",
+    progress: 100,
+    thumbnail: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=400&fit=crop",
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    createdAt: new Date(Date.now() - 7200000),
+  },
+  {
+    id: "6",
+    title: "Fashion model shoot",
+    status: "completed",
+    progress: 100,
+    thumbnail: "https://images.unsplash.com/photo-1524638431109-93d95c968f03?w=400&h=400&fit=crop",
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    createdAt: new Date(Date.now() - 8000000),
+  },
+  {
+    id: "7",
+    title: "Dance queen video",
+    status: "failed",
+    progress: 0,
+    thumbnail: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=400&fit=crop",
+    createdAt: new Date(Date.now() - 9000000),
+  },
+  {
+    id: "8",
+    title: "Portrait glow effect",
+    status: "completed",
+    progress: 100,
+    thumbnail: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop",
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    createdAt: new Date(Date.now() - 10000000),
+  },
+  {
+    id: "9",
+    title: "Singing star performance",
+    status: "completed",
+    progress: 100,
+    thumbnail: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=400&fit=crop",
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    createdAt: new Date(Date.now() - 11000000),
+  },
+  {
+    id: "10",
+    title: "Glam look transformation",
+    status: "completed",
+    progress: 100,
+    thumbnail: "https://images.unsplash.com/photo-1496440737103-cd596325d314?w=400&h=400&fit=crop",
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    createdAt: new Date(Date.now() - 12000000),
+  },
+];
+
+const MyVideos = () => {
+  const navigate = useNavigate();
+  const [tasks] = useState<VideoTask[]>(mockTasks.slice(0, 10)); // Show max 10 recent videos
+
+  const renderVideoStatus = (task: VideoTask) => {
+    switch (task.status) {
+      case "processing":
+        return (
+          <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center">
+            <div className="w-10 h-10 border-2 border-white border-t-transparent rounded-full animate-spin mb-2" />
+            <span className="text-white text-xs">Processing...</span>
+          </div>
+        );
+      case "completed":
+        return (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center">
+              <Play className="w-5 h-5 text-white fill-white" />
+            </div>
+          </div>
+        );
+      case "failed":
+        return (
+          <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center">
+            <RotateCw className="w-6 h-6 text-white mb-1" />
+            <span className="text-white text-xs">Retry</span>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </div>
+          <Button variant="ghost" size="icon">
+            <Trash2 className="w-5 h-5" />
+          </Button>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-4 max-w-lg">
+        <div className="grid grid-cols-2 gap-3">
+          {tasks.map((task) => (
+            <div key={task.id} className="relative">
+              <div className="aspect-[4/5] rounded-xl overflow-hidden relative">
+                <img
+                  src={task.thumbnail}
+                  alt={task.title}
+                  className="w-full h-full object-cover"
+                />
+                {renderVideoStatus(task)}
+              </div>
+              <p className="text-sm font-medium mt-2 line-clamp-2">{task.title}</p>
+              {task.status === "processing" && (
+                <p className="text-xs text-muted-foreground">{task.progress}% · {task.estimatedTime}</p>
+              )}
+              {task.status === "completed" && (
+                <p className="text-xs text-muted-foreground">Completed · {task.createdAt.toLocaleDateString()}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default MyVideos;
