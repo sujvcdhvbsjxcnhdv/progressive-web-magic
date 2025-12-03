@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, MessageCircle, Video, CreditCard, User, Sun, Moon, Monitor } from "lucide-react";
+import { Home, MessageCircle, Video, CreditCard, User, Sun, Moon, Download } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,16 @@ const AppSidebar = ({ open, onOpenChange, hasNewMessages = true }: AppSidebarPro
   const location = useLocation();
   const { user, profile } = useAuth();
   const [theme, setTheme] = useState<Theme>("dark");
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
 
   const navItems = [
     { icon: Home, label: "Home", path: "/", hasNotification: false },
@@ -77,16 +87,27 @@ const AppSidebar = ({ open, onOpenChange, hasNewMessages = true }: AppSidebarPro
               >
                 <Moon className="w-4 h-4" />
               </button>
-              <button
-                onClick={() => setTheme("system")}
-                className={cn(
-                  "p-2 rounded-full transition-colors",
-                  theme === "system" ? "bg-background text-foreground" : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <Monitor className="w-4 h-4" />
-              </button>
             </div>
+
+            {/* Add to Desktop Button */}
+            <button
+              onClick={async () => {
+                if (deferredPrompt) {
+                  deferredPrompt.prompt();
+                  const { outcome } = await deferredPrompt.userChoice;
+                  if (outcome === 'accepted') {
+                    setDeferredPrompt(null);
+                  }
+                } else {
+                  // Fallback for iOS or if prompt not available
+                  alert('To install: tap the share button and select "Add to Home Screen"');
+                }
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-primary/20 text-primary rounded-full text-sm font-medium hover:bg-primary/30 transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Add to Desktop
+            </button>
           </div>
         </SheetHeader>
 

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +18,7 @@ interface LoginPromptProps {
 
 const LoginPrompt = ({ open, onOpenChange, message }: LoginPromptProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -35,7 +36,8 @@ const LoginPrompt = ({ open, onOpenChange, message }: LoginPromptProps) => {
           <Button
             onClick={() => {
               onOpenChange(false);
-              navigate("/auth");
+              // Pass current path as returnUrl
+              navigate(`/auth?returnUrl=${encodeURIComponent(location.pathname)}`);
             }}
             className="gap-2"
           >

@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ArrowLeft, Maximize2, Share2, X, Check, Camera, Sparkles, Plus, Settings2, RotateCw, Crop } from "lucide-react";
+import UserAvatarMenu from "@/components/UserAvatarMenu";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginPrompt from "@/components/LoginPrompt";
@@ -629,11 +630,27 @@ const VideoGenerator = () => {
             <h1 className="text-xl font-bold">AI Video</h1>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs bg-pink-500 text-white px-2 py-0.5 rounded-full font-medium">PRO</span>
-            <span className="text-sm font-medium flex items-center gap-1">
-              <Sparkles className="w-4 h-4" />
-              151
-            </span>
+            {user && (
+              <>
+                <span className="text-xs bg-pink-500 text-white px-2 py-0.5 rounded-full font-medium">PRO</span>
+                <span className="text-sm font-medium flex items-center gap-1">
+                  <Sparkles className="w-4 h-4" />
+                  151
+                </span>
+              </>
+            )}
+            {user ? (
+              <UserAvatarMenu />
+            ) : (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate("/auth")}
+                className="text-primary font-medium"
+              >
+                Login
+              </Button>
+            )}
           </div>
         </div>
       </header>
