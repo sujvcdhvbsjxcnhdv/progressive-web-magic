@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginPrompt from "@/components/LoginPrompt";
 import AppSidebar from "@/components/AppSidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import UserAvatarMenu from "@/components/UserAvatarMenu";
 
 // Membership tier types: 'none' | 'basic' | 'plus' | 'pro'
 type MembershipTier = 'none' | 'basic' | 'plus' | 'pro';
@@ -32,12 +32,11 @@ const Pricing = () => {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("premium");
+  const [membershipTier, setMembershipTier] = useState<MembershipTier>(user ? 'none' : 'none');
   
-  // Mock membership tier - in real app, this would come from user profile/subscription
-  const membershipTier: MembershipTier = user ? 'basic' : 'none';
   const membershipBadge = getMembershipBadge(membershipTier);
 
-  const handlePurchase = (plan: string) => {
+  const handlePurchase = (plan: string, tierId?: string) => {
     if (!user) {
       setShowLoginPrompt(true);
       return;
@@ -45,6 +44,10 @@ const Pricing = () => {
     toast.success(`Redirecting to payment for ${plan}...`);
     setTimeout(() => {
       toast.success("Payment successful!");
+      // Update membership tier based on purchased plan
+      if (tierId === 'basic') setMembershipTier('basic');
+      else if (tierId === 'premium') setMembershipTier('plus');
+      else if (tierId === 'ultimate') setMembershipTier('pro');
     }, 2000);
   };
 
@@ -128,10 +131,6 @@ const Pricing = () => {
             <Menu className="w-5 h-5" />
           </Button>
           
-          <div className="border border-primary rounded-lg px-4 py-1.5">
-            <span className="text-sm font-bold">Ai Video</span>
-          </div>
-          
           <div className="flex items-center gap-2">
             {membershipBadge && (
               <Badge className={`text-xs px-2 py-0.5 ${membershipBadge.className}`}>
@@ -143,12 +142,7 @@ const Pricing = () => {
               <span className="text-xs font-medium">151</span>
             </div>
             {user ? (
-              <Avatar className="w-7 h-7">
-                <AvatarImage src={user?.user_metadata?.avatar_url} />
-                <AvatarFallback className="text-xs bg-primary/20">
-                  {user?.email?.charAt(0).toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatarMenu />
             ) : (
               <Button 
                 size="sm" 
@@ -260,7 +254,7 @@ const Pricing = () => {
                           ? "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black"
                           : "bg-primary hover:bg-primary/90"
                       }`}
-                      onClick={() => handlePurchase(currentPlan.title)}
+                      onClick={() => handlePurchase(currentPlan.title, currentPlan.id)}
                     >
                       Subscribe
                     </Button>
@@ -277,49 +271,112 @@ const Pricing = () => {
           </TabsContent>
 
           {/* Video Credits Tab */}
-          <TabsContent value="credits" className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { credits: 50, price: "$19.99", popular: false },
-                { credits: 100, price: "$29.99", popular: true, save: "25%" },
-                { credits: 200, price: "$49.99", popular: false, save: "38%" },
-                { credits: 500, price: "$99.99", popular: false, save: "50%", best: true }
-              ].map((pack) => (
-                <div
-                  key={pack.credits}
-                  className={`rounded-xl p-4 border ${
-                    pack.popular ? "border-primary bg-primary/10" : "border-border bg-secondary/30"
-                  } relative`}
-                >
-                  {pack.popular && (
-                    <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 text-xs">
-                      Popular
-                    </Badge>
-                  )}
-                  {pack.best && (
-                    <Badge variant="secondary" className="absolute -top-2 left-1/2 -translate-x-1/2 text-xs">
-                      Best Value
-                    </Badge>
-                  )}
-                  <div className="text-center space-y-2 pt-2">
-                    <div className="text-2xl font-bold">{pack.credits}</div>
-                    <div className="text-xs text-muted-foreground">Credits</div>
-                    <div className="text-lg font-bold">{pack.price}</div>
-                    {pack.save && (
-                      <div className="text-xs text-green-500">Save {pack.save}</div>
-                    )}
+          <TabsContent value="credits" className="space-y-6">
+            {/* What You Get Section */}
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <span>✨</span> What You Get
+              </h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-primary" />
+                  <span><strong>Pro-Speed</strong> Video Generation</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-primary" />
+                  <span><strong>HD Quality</strong> & No Watermarks</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-primary" />
+                  <span><strong>Exclusive Styles</strong> & Trends Access</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-primary" />
+                  <span>Get <strong>500</strong> weekly credits</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Weekly Subscription */}
+            <div className="bg-secondary/30 rounded-2xl p-4 border border-border relative">
+              <Badge className="absolute -top-2 left-4 bg-red-500 text-white text-xs">
+                🔥 Limited Offer
+              </Badge>
+              <div className="absolute -top-2 right-4 bg-gradient-to-br from-purple-500 to-pink-500 text-white text-xs px-2 py-1 rounded-lg font-bold transform rotate-12">
+                50% OFF
+              </div>
+              <div className="pt-2">
+                <h4 className="font-bold text-lg">Weekly Subscription</h4>
+                <p className="text-sm text-muted-foreground">500 Credits per week</p>
+                <div className="mt-3">
+                  <span className="text-2xl font-bold">$3.99</span>
+                  <span className="text-muted-foreground text-sm">/week</span>
+                  <span className="text-muted-foreground text-sm line-through ml-2">$7.99</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Credit Packs */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm text-muted-foreground">Credit Packs (One-time)</h4>
+              <div className="space-y-3">
+                {[
+                  { name: "Small", credits: 300, price: "$3.99", originalPrice: null, save: null },
+                  { name: "Medium", credits: 700, price: "$8.99", originalPrice: null, save: null },
+                  { name: "Large", credits: 1500, price: "$17.99", originalPrice: "$35.99", save: "50%", popular: true },
+                  { name: "Best Value", credits: 3500, price: "$34.99", originalPrice: "$174.99", save: "80%", best: true }
+                ].map((pack) => (
+                  <div
+                    key={pack.credits}
+                    className={`flex items-center justify-between p-3 rounded-xl border ${
+                      pack.best ? "border-amber-500/50 bg-amber-500/10" : 
+                      pack.popular ? "border-primary/50 bg-primary/10" : "border-border bg-secondary/20"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {(pack.popular || pack.best) && (
+                        <Badge className={`text-xs ${pack.best ? "bg-amber-500 text-black" : "bg-red-500 text-white"}`}>
+                          {pack.best ? "Best Value" : "🔥 Popular"}
+                        </Badge>
+                      )}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Zap className="w-4 h-4 text-primary" />
+                          <span className="font-bold">{pack.credits}</span>
+                          <span className="text-sm text-muted-foreground">Credits</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="font-semibold">{pack.price}</span>
+                          {pack.originalPrice && (
+                            <span className="text-xs text-muted-foreground line-through">{pack.originalPrice}</span>
+                          )}
+                          {pack.save && (
+                            <span className="text-xs text-green-500 font-medium">Save {pack.save}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                     <Button
                       onClick={() => handlePurchase(`${pack.credits} Credits`)}
-                      variant={pack.popular ? "default" : "outline"}
-                      className="w-full"
+                      variant="outline"
                       size="sm"
+                      className="rounded-full"
                     >
                       Buy Now
                     </Button>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
+
+            {/* Subscribe Button */}
+            <Button 
+              className="w-full rounded-full h-12 font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              onClick={() => handlePurchase("Weekly Subscription")}
+            >
+              Subscribe
+            </Button>
+            <p className="text-center text-muted-foreground text-xs">Cancel anytime</p>
           </TabsContent>
         </Tabs>
       </div>
