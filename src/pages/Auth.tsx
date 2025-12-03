@@ -12,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, enableDemoMode } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,20 +26,13 @@ const Auth = () => {
   }, [user, navigate]);
 
   const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/`
-      }
+    // Enable demo mode for testing - this simulates a logged-in user
+    enableDemoMode();
+    toast({
+      title: "Demo Mode",
+      description: "You are now logged in as a demo user!",
     });
-    
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+    navigate("/");
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {

@@ -12,7 +12,6 @@ import Pricing from "./pages/Pricing";
 import Mine from "./pages/Mine";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
-import BottomNav from "./components/BottomNav";
 
 const queryClient = new QueryClient();
 
@@ -23,19 +22,16 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <div className="pb-16">
-            <Routes>
-              <Route path="/" element={<CharacterGallery />} />
-              <Route path="/chat" element={<ChatList />} />
-              <Route path="/chat/:characterId" element={<Chat />} />
-              <Route path="/video" element={<VideoGenerator />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/mine" element={<Mine />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </div>
-          <BottomNav />
+          <Routes>
+            <Route path="/" element={<CharacterGallery />} />
+            <Route path="/chat" element={<ChatList />} />
+            <Route path="/chat/:characterId" element={<Chat />} />
+            <Route path="/video" element={<VideoGenerator />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/mine" element={<Mine />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
