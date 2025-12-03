@@ -247,36 +247,44 @@ const CharacterGallery = () => {
             {/* Name */}
             <h2 className="text-2xl font-bold text-center">{selectedCharacter.name}</h2>
             
-            {/* Tags - Highlighted */}
-            <div className="flex flex-wrap justify-center gap-2">
-              {selectedCharacter.tags.map((tag) => (
-                <span 
-                  key={tag} 
-                  className="text-sm bg-primary/20 text-primary px-3 py-1 rounded-full font-medium border border-primary/30"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
+            {/* Info Card */}
+            <div className="bg-card/50 rounded-2xl p-4 border border-border/50 space-y-4">
+              {/* Tags - Highlighted */}
+              <div className="flex flex-wrap gap-2">
+                {selectedCharacter.tags.map((tag) => (
+                  <span 
+                    key={tag} 
+                    className="text-sm bg-primary/20 text-primary px-3 py-1 rounded-full font-medium border border-primary/30"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
 
-            {/* About - Full Description */}
-            <div className="pt-2">
-              <p className="text-muted-foreground text-sm leading-relaxed text-center">
-                {selectedCharacter.fullDescription}
-              </p>
+              {/* Divider */}
+              <div className="h-px bg-border/50" />
+
+              {/* About - Full Description */}
+              <div>
+                <p className="text-foreground/90 text-sm leading-relaxed">
+                  {selectedCharacter.fullDescription}
+                </p>
+              </div>
             </div>
             
-            {/* Background - 3 lines with Read More */}
-            <div className="pt-2">
-              <p className={`text-muted-foreground text-sm leading-relaxed text-center ${!showBackground ? 'line-clamp-3' : ''}`}>
+            {/* Background Card */}
+            <div className="bg-card/50 rounded-2xl p-4 border border-border/50">
+              <h3 className="text-primary font-semibold text-sm mb-2">Background</h3>
+              <p className={`text-muted-foreground text-sm leading-relaxed ${!showBackground ? 'line-clamp-3' : ''}`}>
                 {selectedCharacter.background}
               </p>
               {selectedCharacter.background && selectedCharacter.background.length > 100 && (
                 <button
                   onClick={() => setShowBackground(!showBackground)}
-                  className="text-primary text-sm font-medium mt-2 w-full text-center hover:underline"
+                  className="text-primary text-sm font-medium mt-3 flex items-center gap-1 hover:underline"
                 >
-                  {showBackground ? 'Show Less' : 'Read More'}
+                  {showBackground ? 'Show Less' : 'View More'}
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showBackground ? 'rotate-180' : ''}`} />
                 </button>
               )}
             </div>
