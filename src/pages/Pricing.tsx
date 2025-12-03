@@ -149,7 +149,15 @@ const Pricing = () => {
           
           <div className="flex items-center gap-2">
             <Badge 
-              className="bg-primary/20 text-primary border-primary/30 px-3 py-1 font-semibold cursor-pointer hover:bg-primary/30 transition-colors text-xs"
+              className={`px-3 py-1 font-semibold cursor-pointer transition-colors text-xs ${
+                membershipTier === 'none'
+                  ? 'bg-primary/20 text-primary border-primary/30 hover:bg-primary/30'
+                  : membershipTier === 'basic' 
+                  ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                  : membershipTier === 'plus' 
+                  ? 'bg-pink-500 hover:bg-pink-600 text-white' 
+                  : 'bg-amber-500 hover:bg-amber-600 text-black'
+              }`}
               onClick={() => setMainTab("chat")}
             >
               PRO
