@@ -182,13 +182,7 @@ const Settings = () => {
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm text-muted-foreground">My Plan</span>
                 </div>
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-pink-500 font-semibold">{mockChatSubscription.plan}</span>
-                  <div className="flex items-center gap-1">
-                    <Zap className="w-4 h-4 text-yellow-500" />
-                    <span className="font-bold text-lg">{mockChatSubscription.credits.toLocaleString()}</span>
-                  </div>
-                </div>
+                <span className="text-pink-500 font-semibold text-lg">{mockChatSubscription.plan}</span>
               </div>
               
               {/* Billing Info */}
