@@ -101,7 +101,10 @@ const Settings = () => {
           <div className="flex items-center gap-3">
             {getMembershipBadge()}
             {user && (
-              <div className="flex items-center gap-1 text-sm">
+              <div 
+                className="flex items-center gap-1 text-sm cursor-pointer hover:opacity-80"
+                onClick={() => navigate("/pricing?tab=video")}
+              >
                 <Zap className="w-4 h-4 text-yellow-500" />
                 <span>{userCredits.toLocaleString()}</span>
               </div>
@@ -209,11 +212,6 @@ const Settings = () => {
                     <Zap className="w-4 h-4 text-yellow-500" />
                     <span className="font-bold text-lg">{mockChatSubscription.credits.toLocaleString()}</span>
                   </div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <span className="bg-muted px-3 py-1 rounded-full text-xs">Daily: <strong>{mockChatSubscription.dailyCredits}</strong></span>
-                  <span className="bg-muted px-3 py-1 rounded-full text-xs">Membership: <strong>{mockChatSubscription.membershipCredits.toLocaleString()}</strong></span>
-                  <span className="bg-muted px-3 py-1 rounded-full text-xs">Bonus: <strong>{mockChatSubscription.bonusCredits}</strong></span>
                 </div>
               </div>
               

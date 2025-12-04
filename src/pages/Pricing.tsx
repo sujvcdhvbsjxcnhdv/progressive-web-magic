@@ -10,9 +10,20 @@ import LoginPrompt from "@/components/LoginPrompt";
 import AppSidebar from "@/components/AppSidebar";
 import UserAvatarMenu from "@/components/UserAvatarMenu";
 import BottomNav from "@/components/BottomNav";
+import UpgradeDialog from "@/components/UpgradeDialog";
 
 // Membership tier types: 'none' | 'basic' | 'plus' | 'pro'
 type MembershipTier = 'none' | 'basic' | 'plus' | 'pro';
+
+interface PlanInfo {
+  id: string;
+  name: string;
+  price: number;
+  priceLabel: string;
+  credits: string;
+  period: string;
+  daysInPeriod: number;
+}
 
 const getMembershipBadge = (tier: MembershipTier) => {
   switch (tier) {
@@ -27,6 +38,19 @@ const getMembershipBadge = (tier: MembershipTier) => {
   }
 };
 
+const planInfoMap: Record<string, PlanInfo> = {
+  basic: { id: 'basic', name: 'Basic', price: 5.99, priceLabel: '$5.99', credits: '100 per daily', period: 'Monthly', daysInPeriod: 30 },
+  premium: { id: 'premium', name: 'Plus', price: 14.99, priceLabel: '$14.99', credits: 'Unlimited', period: 'Monthly', daysInPeriod: 30 },
+  ultimate: { id: 'ultimate', name: 'Pro Yearly', price: 58.88, priceLabel: '$58.88', credits: 'Unlimited', period: 'Yearly', daysInPeriod: 365 },
+};
+
+const tierToPlanId: Record<MembershipTier, string | null> = {
+  none: null,
+  basic: 'basic',
+  plus: 'premium',
+  pro: 'ultimate',
+};
+
 const Pricing = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -36,6 +60,9 @@ const Pricing = () => {
   const [activeTab, setActiveTab] = useState("premium");
   const [membershipTier, setMembershipTier] = useState<MembershipTier>(user ? 'none' : 'none');
   const [isVideoMember, setIsVideoMember] = useState(false);
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
+  const [pendingUpgradePlan, setPendingUpgradePlan] = useState<PlanInfo | null>(null);
+  const [remainingDays, setRemainingDays] = useState(15); // Demo: 15 days remaining
   
   // Get the main tab from URL query parameter
   const tabParam = searchParams.get("tab");
@@ -53,18 +80,49 @@ const Pricing = () => {
   
   const membershipBadge = getMembershipBadge(membershipTier);
 
+  const getCurrentPlanInfo = (): PlanInfo | null => {
+    const planId = tierToPlanId[membershipTier];
+    return planId ? planInfoMap[planId] : null;
+  };
+
   const handlePurchase = (plan: string, tierId?: string) => {
     if (!user) {
       setShowLoginPrompt(true);
       return;
     }
+
+    // Check if user already has a subscription and is upgrading
+    if (membershipTier !== 'none' && tierId && tierId !== tierToPlanId[membershipTier]) {
+      const newPlan = planInfoMap[tierId];
+      if (newPlan) {
+        setPendingUpgradePlan(newPlan);
+        setShowUpgradeDialog(true);
+        return;
+      }
+    }
+
+    // Direct purchase for new subscribers
     toast.success(`Redirecting to payment for ${plan}...`);
     setTimeout(() => {
       toast.success("Payment successful!");
-      // Update membership tier based on purchased plan
       if (tierId === 'basic') setMembershipTier('basic');
       else if (tierId === 'premium') setMembershipTier('plus');
       else if (tierId === 'ultimate') setMembershipTier('pro');
+    }, 2000);
+  };
+
+  const handleConfirmUpgrade = () => {
+    if (!pendingUpgradePlan) return;
+    
+    setShowUpgradeDialog(false);
+    toast.success(`Upgrading to ${pendingUpgradePlan.name}...`);
+    
+    setTimeout(() => {
+      toast.success("Upgrade successful!");
+      if (pendingUpgradePlan.id === 'basic') setMembershipTier('basic');
+      else if (pendingUpgradePlan.id === 'premium') setMembershipTier('plus');
+      else if (pendingUpgradePlan.id === 'ultimate') setMembershipTier('pro');
+      setPendingUpgradePlan(null);
     }, 2000);
   };
 
@@ -499,6 +557,16 @@ const Pricing = () => {
         onOpenChange={setShowLoginPrompt}
         message="Please login to purchase."
       />
+
+      <UpgradeDialog
+        open={showUpgradeDialog}
+        onOpenChange={setShowUpgradeDialog}
+        currentPlan={getCurrentPlanInfo()}
+        newPlan={pendingUpgradePlan}
+        remainingDays={remainingDays}
+        onConfirm={handleConfirmUpgrade}
+      />
+
       <BottomNav />
     </div>
   );
