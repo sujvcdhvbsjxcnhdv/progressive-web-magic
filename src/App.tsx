@@ -14,6 +14,7 @@ import MyVideos from "./pages/MyVideos";
 import Settings from "./pages/Settings";
 import CreditsHistory from "./pages/CreditsHistory";
 import Auth from "./pages/Auth";
+import ForgotPassword from "./pages/ForgotPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/settings" element={<Settings />} />
             <Route path="/credits-history" element={<CreditsHistory />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
