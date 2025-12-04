@@ -6,7 +6,6 @@ import { ArrowLeft, FileText, Shield, Trash2, Zap, Video, ChevronRight } from "l
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import UserAvatarMenu from "@/components/UserAvatarMenu";
-import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,7 +54,6 @@ const Settings = () => {
   // Demo states - in real app, fetch from database
   const [hasChatSubscription] = useState(true);
   const [hasVideoSubscription] = useState(true);
-  const userCredits = 13164;
 
   const handleClearCache = () => {
     toast.success("Cache cleared successfully!");
@@ -65,16 +63,6 @@ const Settings = () => {
     await signOut();
     toast.success("Logged out successfully!");
     navigate("/");
-  };
-
-  // Get membership badge color
-  const getMembershipBadge = () => {
-    if (!hasChatSubscription) return null;
-    const plan = mockChatSubscription.plan;
-    if (plan === "Basic") return <Badge className="bg-purple-500 text-white text-xs">Basic</Badge>;
-    if (plan === "Plus") return <Badge className="bg-pink-500 text-white text-xs">Plus</Badge>;
-    if (plan === "Pro Yearly") return <Badge className="bg-yellow-500 text-white text-xs">Pro</Badge>;
-    return null;
   };
 
   return (
@@ -98,19 +86,7 @@ const Settings = () => {
             </Button>
             <h1 className="text-lg font-semibold">Setting</h1>
           </div>
-          <div className="flex items-center gap-3">
-            {getMembershipBadge()}
-            {user && (
-              <div 
-                className="flex items-center gap-1 text-sm cursor-pointer hover:opacity-80"
-                onClick={() => navigate("/pricing?tab=video")}
-              >
-                <Zap className="w-4 h-4 text-yellow-500" />
-                <span>{userCredits.toLocaleString()}</span>
-              </div>
-            )}
-            <UserAvatarMenu />
-          </div>
+          <UserAvatarMenu />
         </div>
       </header>
 
