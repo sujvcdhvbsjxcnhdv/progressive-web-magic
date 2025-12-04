@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Play, Sparkles, ChevronRight, Settings, RotateCw, Menu } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import LoginPrompt from "@/components/LoginPrompt";
+import LoginEmptyState from "@/components/LoginEmptyState";
+import BottomNav from "@/components/BottomNav";
 import AppSidebar from "@/components/AppSidebar";
 
 interface VideoTask {
@@ -61,9 +62,8 @@ const mockTasks: VideoTask[] = [
 
 const Mine = () => {
   const navigate = useNavigate();
-  const { user, profile, signOut } = useAuth();
+  const { user, profile } = useAuth();
   const [tasks] = useState<VideoTask[]>(mockTasks);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
   // Demo states - toggle to show different UI states
@@ -72,12 +72,6 @@ const Mine = () => {
   
   // Membership badges - demo values
   const chatMembershipTier = "plus"; // 'none' | 'basic' | 'plus' | 'pro'
-
-  useEffect(() => {
-    if (!user) {
-      setShowLoginPrompt(true);
-    }
-  }, [user]);
 
   const getMembershipBadge = (tier: string) => {
     switch (tier) {
@@ -121,10 +115,34 @@ const Mine = () => {
     }
   };
 
+  // Show login empty state if not authenticated
+  if (!user) {
+    return (
+      <>
+        <div className="min-h-screen bg-background pb-20">
+          <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg">
+            <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Button variant="ghost" size="icon" className="relative" onClick={() => setSidebarOpen(true)}>
+                  <Menu className="w-5 h-5" />
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                </Button>
+                <h1 className="text-xl font-bold">Me</h1>
+              </div>
+            </div>
+          </header>
+          <LoginEmptyState message="Please login to access your profile." />
+          <BottomNav />
+        </div>
+        <AppSidebar open={sidebarOpen} onOpenChange={setSidebarOpen} />
+      </>
+    );
+  }
+
   return (
     <>
       <AppSidebar open={sidebarOpen} onOpenChange={setSidebarOpen} />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-20">
         {/* Header */}
         <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg">
           <div className="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -272,17 +290,7 @@ const Mine = () => {
           </div>
         </div>
       </div>
-
-        <LoginPrompt
-          open={showLoginPrompt}
-          onOpenChange={(open) => {
-            setShowLoginPrompt(open);
-            if (!open && !user) {
-              navigate("/");
-            }
-          }}
-          message="Please login to access your profile."
-        />
+        <BottomNav />
       </div>
     </>
   );

@@ -8,6 +8,7 @@ import LoginPrompt from "@/components/LoginPrompt";
 import AppSidebar from "@/components/AppSidebar";
 import PromoBanner from "@/components/PromoBanner";
 import UserAvatarMenu from "@/components/UserAvatarMenu";
+import BottomNav from "@/components/BottomNav";
 
 const characters = [
   {
@@ -142,7 +143,7 @@ const CharacterGallery = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm">
         <div className="px-4 py-3 flex items-center justify-between">
@@ -360,6 +361,7 @@ const CharacterGallery = () => {
         onOpenChange={setShowLoginPrompt}
         message="Please login to start chatting with AI characters."
       />
+      <BottomNav />
     </div>
   );
 };

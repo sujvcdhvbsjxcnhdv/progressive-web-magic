@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { MessageCircle, Trash2, ArrowLeft, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import LoginPrompt from "@/components/LoginPrompt";
+import LoginEmptyState from "@/components/LoginEmptyState";
+import BottomNav from "@/components/BottomNav";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,15 +56,8 @@ const ChatList = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [chats, setChats] = useState<ChatRecord[]>(mockChats);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [chatToDelete, setChatToDelete] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!user) {
-      setShowLoginPrompt(true);
-    }
-  }, [user]);
 
   const handleDeleteClick = (chatId: string) => {
     setChatToDelete(chatId);
@@ -89,8 +83,28 @@ const ChatList = () => {
     return date.toLocaleDateString();
   };
 
+  // Show login empty state if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 pb-20">
+        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
+          <div className="container mx-auto px-4 py-3 flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-xl font-bold">Chats</h1>
+            </div>
+          </div>
+        </header>
+        <LoginEmptyState message="Please login to view your chat history." />
+        <BottomNav />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 pb-20">
       {/* Header with back button */}
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container mx-auto px-4 py-3 flex items-center gap-3">
@@ -171,17 +185,6 @@ const ChatList = () => {
           )}
         </div>
 
-        <LoginPrompt
-          open={showLoginPrompt}
-          onOpenChange={(open) => {
-            setShowLoginPrompt(open);
-            if (!open && !user) {
-              navigate("/");
-            }
-          }}
-          message="Please login to view your chat history."
-        />
-
         <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -199,6 +202,7 @@ const ChatList = () => {
           </AlertDialogContent>
         </AlertDialog>
       </div>
+      <BottomNav />
     </div>
   );
 };

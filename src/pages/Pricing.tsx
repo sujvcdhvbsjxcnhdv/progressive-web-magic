@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import LoginPrompt from "@/components/LoginPrompt";
 import AppSidebar from "@/components/AppSidebar";
 import UserAvatarMenu from "@/components/UserAvatarMenu";
+import BottomNav from "@/components/BottomNav";
 
 // Membership tier types: 'none' | 'basic' | 'plus' | 'pro'
 type MembershipTier = 'none' | 'basic' | 'plus' | 'pro';
@@ -139,7 +140,7 @@ const Pricing = () => {
   const currentPlan = chatPlans.find(p => p.id === activeTab) || chatPlans[2];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
@@ -498,6 +499,7 @@ const Pricing = () => {
         onOpenChange={setShowLoginPrompt}
         message="Please login to purchase."
       />
+      <BottomNav />
     </div>
   );
 };
