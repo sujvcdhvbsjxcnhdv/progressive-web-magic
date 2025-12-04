@@ -345,18 +345,20 @@ const Pricing = () => {
                       const currentTierIndex = currentTierPlanId ? planOrder.indexOf(currentTierPlanId) : -1;
                       const viewingPlanIndex = planOrder.indexOf(currentPlan.id);
                       const isUpgrade = membershipTier !== 'none' && viewingPlanIndex > currentTierIndex;
+                      const isLowerTier = membershipTier !== 'none' && viewingPlanIndex < currentTierIndex;
+                      const isDisabled = isCurrentPlan || isLowerTier;
                       
                       return (
                         <Button 
                           className={`w-full rounded-full h-12 font-semibold ${
-                            isCurrentPlan
-                              ? "bg-secondary text-secondary-foreground cursor-default"
+                            isDisabled
+                              ? "bg-secondary text-secondary-foreground cursor-not-allowed opacity-50"
                               : currentPlan.id === "ultimate"
                               ? "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black"
                               : "bg-primary hover:bg-primary/90"
                           }`}
-                          onClick={() => !isCurrentPlan && handlePurchase(currentPlan.title, currentPlan.id)}
-                          disabled={isCurrentPlan}
+                          onClick={() => !isDisabled && handlePurchase(currentPlan.title, currentPlan.id)}
+                          disabled={isDisabled}
                         >
                           {isCurrentPlan ? "Current Plan" : isUpgrade ? "Upgrade" : "Subscribe"}
                         </Button>
