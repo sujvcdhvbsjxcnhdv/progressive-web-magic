@@ -10,6 +10,7 @@ import UserAvatarMenu from "@/components/UserAvatarMenu";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginPrompt from "@/components/LoginPrompt";
+import BottomNav from "@/components/BottomNav";
 
 interface Template {
   id: string;
@@ -619,7 +620,7 @@ const VideoGenerator = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       {/* Header with back button */}
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -834,6 +835,7 @@ e.g., Wear ethereal wings and dazzle like a..."
           onOpenChange={setShowLoginPrompt}
           message="Please login to generate videos."
         />
+        <BottomNav />
       </div>
     </div>
   );
