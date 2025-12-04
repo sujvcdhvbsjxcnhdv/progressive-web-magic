@@ -20,7 +20,10 @@ interface PlanInfo {
   name: string;
   price: number;
   priceLabel: string;
-  credits: string;
+  dailyMessages: string;
+  chatMemory: string;
+  characters: string;
+  responseSpeed: string;
   period: string;
   daysInPeriod: number;
 }
@@ -39,9 +42,9 @@ const getMembershipBadge = (tier: MembershipTier) => {
 };
 
 const planInfoMap: Record<string, PlanInfo> = {
-  basic: { id: 'basic', name: 'Basic', price: 5.99, priceLabel: '$5.99', credits: '100 per daily', period: 'Monthly', daysInPeriod: 30 },
-  premium: { id: 'premium', name: 'Plus', price: 14.99, priceLabel: '$14.99', credits: 'Unlimited', period: 'Monthly', daysInPeriod: 30 },
-  ultimate: { id: 'ultimate', name: 'Pro Yearly', price: 58.88, priceLabel: '$58.88', credits: 'Unlimited', period: 'Yearly', daysInPeriod: 365 },
+  basic: { id: 'basic', name: 'Basic', price: 5.99, priceLabel: '$5.99', dailyMessages: '100', chatMemory: '100 messages', characters: 'All characters', responseSpeed: 'Faster', period: 'Monthly', daysInPeriod: 30 },
+  premium: { id: 'premium', name: 'Plus', price: 14.99, priceLabel: '$14.99', dailyMessages: 'Unlimited', chatMemory: '400 messages', characters: 'All characters', responseSpeed: 'Fast', period: 'Monthly', daysInPeriod: 30 },
+  ultimate: { id: 'ultimate', name: 'Pro Yearly', price: 58.88, priceLabel: '$58.88', dailyMessages: 'Unlimited', chatMemory: '1000 messages', characters: 'All characters', responseSpeed: 'Priority', period: 'Yearly', daysInPeriod: 365 },
 };
 
 const tierToPlanId: Record<MembershipTier, string | null> = {
@@ -335,16 +338,30 @@ const Pricing = () => {
 
                 {currentPlan.id !== "free" && (
                   <>
-                    <Button 
-                      className={`w-full rounded-full h-12 font-semibold ${
-                        currentPlan.id === "ultimate"
-                          ? "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black"
-                          : "bg-primary hover:bg-primary/90"
-                      }`}
-                      onClick={() => handlePurchase(currentPlan.title, currentPlan.id)}
-                    >
-                      Subscribe
-                    </Button>
+                    {(() => {
+                      const currentTierPlanId = tierToPlanId[membershipTier];
+                      const isCurrentPlan = currentPlan.id === currentTierPlanId;
+                      const planOrder = ['basic', 'premium', 'ultimate'];
+                      const currentTierIndex = currentTierPlanId ? planOrder.indexOf(currentTierPlanId) : -1;
+                      const viewingPlanIndex = planOrder.indexOf(currentPlan.id);
+                      const isUpgrade = membershipTier !== 'none' && viewingPlanIndex > currentTierIndex;
+                      
+                      return (
+                        <Button 
+                          className={`w-full rounded-full h-12 font-semibold ${
+                            isCurrentPlan
+                              ? "bg-secondary text-secondary-foreground cursor-default"
+                              : currentPlan.id === "ultimate"
+                              ? "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black"
+                              : "bg-primary hover:bg-primary/90"
+                          }`}
+                          onClick={() => !isCurrentPlan && handlePurchase(currentPlan.title, currentPlan.id)}
+                          disabled={isCurrentPlan}
+                        >
+                          {isCurrentPlan ? "Current Plan" : isUpgrade ? "Upgrade" : "Subscribe"}
+                        </Button>
+                      );
+                    })()}
                     <p className="text-center text-muted-foreground text-xs mt-2">Cancel anytime</p>
                     {currentPlan.yearlyNote && (
                       <p className="text-center text-muted-foreground text-xs mt-1">
