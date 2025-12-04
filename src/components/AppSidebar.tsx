@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, MessageCircle, Video, CreditCard, User, Sun, Moon, Download } from "lucide-react";
+import { Home, MessageCircle, Video, CreditCard, User, Download } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -12,13 +12,10 @@ interface AppSidebarProps {
   hasNewMessages?: boolean;
 }
 
-type Theme = "light" | "dark" | "system";
-
 const AppSidebar = ({ open, onOpenChange, hasNewMessages = true }: AppSidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, profile } = useAuth();
-  const [theme, setTheme] = useState<Theme>("dark");
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
@@ -38,17 +35,6 @@ const AppSidebar = ({ open, onOpenChange, hasNewMessages = true }: AppSidebarPro
     { icon: User, label: "Mine", path: "/mine", hasNotification: false },
   ];
 
-  useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove("light", "dark");
-
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-      root.classList.add(systemTheme);
-    } else {
-      root.classList.add(theme);
-    }
-  }, [theme]);
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -67,28 +53,6 @@ const AppSidebar = ({ open, onOpenChange, hasNewMessages = true }: AppSidebarPro
               </AvatarFallback>
             </Avatar>
             
-            {/* Theme Toggle */}
-            <div className="flex items-center gap-1 bg-secondary rounded-full p-1">
-              <button
-                onClick={() => setTheme("light")}
-                className={cn(
-                  "p-2 rounded-full transition-colors",
-                  theme === "light" ? "bg-background text-foreground" : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <Sun className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setTheme("dark")}
-                className={cn(
-                  "p-2 rounded-full transition-colors",
-                  theme === "dark" ? "bg-background text-foreground" : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <Moon className="w-4 h-4" />
-              </button>
-            </div>
-
             {/* Add to Desktop Button */}
             <button
               onClick={async () => {
