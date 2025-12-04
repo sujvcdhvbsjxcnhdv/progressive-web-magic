@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play, RotateCw, Trash2, Check } from "lucide-react";
+import { ArrowLeft, Play, RotateCw, Trash2, Check, Sparkles } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,6 +12,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 
 interface VideoTask {
   id: string;
@@ -22,6 +26,8 @@ interface VideoTask {
   videoUrl?: string;
   createdAt: Date;
   estimatedTime?: string;
+  templateName?: string;
+  templateDescription?: string;
 }
 
 const mockTasks: VideoTask[] = [
@@ -86,6 +92,8 @@ const mockTasks: VideoTask[] = [
     progress: 0,
     thumbnail: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=400&fit=crop",
     createdAt: new Date(Date.now() - 9000000),
+    templateName: "Washing machine repair",
+    templateDescription: "Show off your strong muscles and have everyone hooked",
   },
   {
     id: "8",
@@ -122,6 +130,7 @@ const MyVideos = () => {
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [retryTask, setRetryTask] = useState<VideoTask | null>(null);
 
   const toggleSelectMode = () => {
     if (isSelectMode) {
@@ -147,6 +156,31 @@ const MyVideos = () => {
     setShowDeleteDialog(false);
   };
 
+  const handleTaskClick = (task: VideoTask) => {
+    if (isSelectMode) {
+      toggleSelect(task.id);
+      return;
+    }
+
+    if (task.status === "completed") {
+      navigate(`/video/${task.id}`);
+    } else if (task.status === "failed") {
+      setRetryTask(task);
+    }
+  };
+
+  const handleRetry = () => {
+    // In real app, this would restart the video generation
+    if (retryTask) {
+      setTasks(tasks.map(t => 
+        t.id === retryTask.id 
+          ? { ...t, status: "processing" as const, progress: 0 }
+          : t
+      ));
+    }
+    setRetryTask(null);
+  };
+
   const renderVideoStatus = (task: VideoTask) => {
     switch (task.status) {
       case "processing":
@@ -168,7 +202,7 @@ const MyVideos = () => {
         return (
           <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center">
             <RotateCw className="w-6 h-6 text-white mb-1" />
-            <span className="text-white text-xs">Retry</span>
+            <span className="text-white text-xs">Failed, try again</span>
           </div>
         );
       default:
@@ -202,8 +236,8 @@ const MyVideos = () => {
           {tasks.map((task) => (
             <div 
               key={task.id} 
-              className="relative"
-              onClick={() => isSelectMode && toggleSelect(task.id)}
+              className="relative cursor-pointer"
+              onClick={() => handleTaskClick(task)}
             >
               <div className="aspect-[4/5] rounded-xl overflow-hidden relative">
                 <img
@@ -230,6 +264,9 @@ const MyVideos = () => {
               )}
               {task.status === "completed" && (
                 <p className="text-xs text-muted-foreground">Completed · {task.createdAt.toLocaleDateString()}</p>
+              )}
+              {task.status === "failed" && (
+                <p className="text-xs text-red-400">Failed, try again</p>
               )}
             </div>
           ))}
@@ -273,6 +310,45 @@ const MyVideos = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Retry Dialog */}
+      <Dialog open={!!retryTask} onOpenChange={(open) => !open && setRetryTask(null)}>
+        <DialogContent className="max-w-xs p-0 bg-background border-border overflow-hidden">
+          <div className="p-4">
+            {retryTask && (
+              <div className="space-y-4">
+                <div className="aspect-square rounded-xl overflow-hidden relative bg-gradient-to-br from-purple-900/50 to-pink-900/50">
+                  <img
+                    src={retryTask.thumbnail}
+                    alt={retryTask.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-2 right-2 flex gap-1">
+                    <Button variant="ghost" size="icon" className="bg-black/50 hover:bg-black/70 w-8 h-8">
+                      <RotateCw className="w-4 h-4 text-white" />
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="text-center">
+                  <h3 className="font-semibold text-lg">{retryTask.templateName || retryTask.title}</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {retryTask.templateDescription || "Show off your strong muscles and have everyone hooked"}
+                  </p>
+                </div>
+
+                <Button 
+                  className="w-full rounded-full h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 font-semibold"
+                  onClick={handleRetry}
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Create
+                </Button>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

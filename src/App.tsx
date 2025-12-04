@@ -11,6 +11,7 @@ import VideoGenerator from "./pages/VideoGenerator";
 import Pricing from "./pages/Pricing";
 import Mine from "./pages/Mine";
 import MyVideos from "./pages/MyVideos";
+import VideoDetail from "./pages/VideoDetail";
 import Settings from "./pages/Settings";
 import CreditsHistory from "./pages/CreditsHistory";
 import Auth from "./pages/Auth";
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/mine" element={<Mine />} />
             <Route path="/my-videos" element={<MyVideos />} />
+            <Route path="/video/:id" element={<VideoDetail />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/credits-history" element={<CreditsHistory />} />
             <Route path="/auth" element={<Auth />} />

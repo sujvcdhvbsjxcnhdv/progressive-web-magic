@@ -11,7 +11,10 @@ interface PlanInfo {
   name: string;
   price: number;
   priceLabel: string;
-  credits: string;
+  dailyMessages: string;
+  chatMemory: string;
+  characters: string;
+  responseSpeed: string;
   period: string;
   daysInPeriod: number;
 }
@@ -61,8 +64,20 @@ const UpgradeDialog = ({
                 <span>{currentPlan.priceLabel}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Credits</span>
-                <span>{currentPlan.credits}</span>
+                <span className="text-muted-foreground">Daily Messages</span>
+                <span>{currentPlan.dailyMessages}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Chat Memory</span>
+                <span>{currentPlan.chatMemory}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Characters</span>
+                <span>{currentPlan.characters}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Response Speed</span>
+                <span>{currentPlan.responseSpeed}</span>
               </div>
             </div>
           </div>
@@ -80,8 +95,20 @@ const UpgradeDialog = ({
                 <span>{newPlan.priceLabel}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Credits</span>
-                <span>{newPlan.credits}</span>
+                <span className="text-muted-foreground">Daily Messages</span>
+                <span>{newPlan.dailyMessages}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Chat Memory</span>
+                <span>{newPlan.chatMemory}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Characters</span>
+                <span>{newPlan.characters}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Response Speed</span>
+                <span>{newPlan.responseSpeed}</span>
               </div>
             </div>
           </div>
